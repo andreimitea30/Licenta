@@ -14,7 +14,6 @@ VIDEO_PATH = DATASET_BASE_PATH / "video"
 
 ANALYZE_VIDEO_FILES = True
 
-
 def load_metadata(metadata_path):
     print(f"Scanning {metadata_path} for metadata files (txt)...")
 
@@ -44,7 +43,6 @@ def load_metadata(metadata_path):
     print(f"Metadata loaded. Total samples: {len(full_df)}")
     return full_df
 
-
 def get_video_properties(video_path):
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
@@ -66,7 +64,6 @@ def get_video_properties(video_path):
         'vid_actual_duration': duration,
         'aspect_ratio': width / height if height > 0 else 0,
     }
-
 
 def enrich_with_video_data(df, video_root_path):
     print(f"Scanning {video_root_path} for video files...")
@@ -107,7 +104,6 @@ def enrich_with_video_data(df, video_root_path):
     print("Could not match videos to CSV entries. Returning metadata only.")
     return df
 
-
 def classify_resolution(row):
     if pd.isna(row['vid_width']):
         return "Unknown"
@@ -125,7 +121,6 @@ def classify_resolution(row):
     else:
         res_name = "Low Res"
     return f"{res_name} {orientation}"
-
 
 def plot_eda(df):
     sns.set_theme(style="whitegrid")
@@ -179,7 +174,6 @@ def plot_eda(df):
     plt.savefig(output_path)
     print(f"EDA plot saved to '{output_path}'")
     plt.show()
-
 
 if __name__ == "__main__":
     if not DATASET_BASE_PATH.exists():

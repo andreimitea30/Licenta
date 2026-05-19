@@ -1,9 +1,3 @@
-"""Train v5 (3-stream ST-GCN with body+hands, V=75) for 150 epochs with
-combined_train=True (uses train+val for fitting, monitors on test).
-
-Mirrors run_v4_ema_tta.py for the metric reporting (4-way per epoch:
-live / live+TTA / EMA / EMA+TTA), but the model and data are 75-node.
-"""
 import argparse
 import re
 import sys
@@ -25,13 +19,11 @@ LIVE_TTA_RE = re.compile(r"Live\+TTA\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%")
 EMA_RE      = re.compile(r"EMA\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%")
 EMA_TTA_RE  = re.compile(r"EMA\+TTA\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%")
 
-
 def set_seed(seed: int) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-
 
 class Tee:
     def __init__(self, *streams): self.streams = streams
@@ -40,7 +32,6 @@ class Tee:
             st.write(s); st.flush()
     def flush(self):
         for st in self.streams: st.flush()
-
 
 def parse_log(path: Path):
     if not path.exists(): return []
@@ -64,7 +55,6 @@ def parse_log(path: Path):
         if m: cur["ema_t1"] = float(m.group(1)); cur["ema_t5"] = float(m.group(2)); continue
     if cur: rows.append(cur)
     return rows
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -91,8 +81,6 @@ def main():
     set_seed(args.seed)
 
     real_stdout = sys.stdout
-    # Append mode so resumed runs keep the earlier epoch history; fresh
-    # starts also create the file via append-mode 'a'.
     log_mode = "w" if args.restart else "a"
     with open(log, log_mode, encoding="utf-8", buffering=1) as f:
         sys.stdout = Tee(real_stdout, f)
@@ -143,7 +131,6 @@ def main():
     stat('live_tta_t1', 'live_tta_t5', 'v5 + TTA')
     stat('ema_t1',      'ema_t5',      'v5 + EMA')
     stat('ema_tta_t1',  'ema_tta_t5',  'v5 + EMA + TTA')
-
 
 if __name__ == "__main__":
     main()

@@ -1,27 +1,12 @@
-"""Compare two per-class accuracy CSVs (e.g. v4 vs v5) and surface the deltas.
-
-Usage:
-    python compare_per_class.py --baseline per_class_accuracy_v4.csv \
-                                --new      per_class_accuracy_v5.csv
-
-Outputs:
-  - Overall delta (sample-weighted Top-1 / Top-5)
-  - Bottom-N classes by NEW Top-1 (i.e. still failing after the change)
-  - Most-improved classes (Top-1 went up most)
-  - Most-regressed classes (Top-1 went down most)
-  - Combined CSV at compare_v4_v5.csv with both columns side-by-side
-"""
 import argparse
 import csv
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-
 def read_csv(path: Path):
     with open(path, "r", encoding="utf-8") as f:
         return list(csv.DictReader(f))
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -54,7 +39,6 @@ def main():
             "new_top_conf":      n.get("top_conf_1", ""),
         })
 
-    # Overall sample-weighted means
     n_total = sum(r["samples"] for r in rows)
     base_t1 = sum(r["baseline_top1"] * r["samples"] for r in rows) / n_total
     new_t1  = sum(r["new_top1"]      * r["samples"] for r in rows) / n_total
@@ -65,7 +49,6 @@ def main():
     print(f"  Top-1: baseline={base_t1:.2f}%  new={new_t1:.2f}%  delta={new_t1-base_t1:+.2f}pp")
     print(f"  Top-5: baseline={base_t5:.2f}%  new={new_t5:.2f}%  delta={new_t5-base_t5:+.2f}pp")
 
-    # Movement stats
     improved   = sum(1 for r in rows if r["delta_top1"] > 0)
     regressed  = sum(1 for r in rows if r["delta_top1"] < 0)
     unchanged  = sum(1 for r in rows if r["delta_top1"] == 0)
@@ -103,14 +86,12 @@ def main():
         print(f"{r['class']:<35} {r['baseline_top1']:>4.0f}% -> {r['new_top1']:>4.0f}%  "
               f"d {r['delta_top1']:>+5.1f}")
 
-    # Combined CSV
     rows.sort(key=lambda r: -r["delta_top1"])
     with open(args.out, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         w.writeheader()
         w.writerows(rows)
     print(f"\nCombined CSV written: {args.out}")
-
 
 if __name__ == "__main__":
     main()

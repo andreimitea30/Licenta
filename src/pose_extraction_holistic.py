@@ -1,18 +1,3 @@
-"""Extract body + hand landmarks via the modern MediaPipe Tasks API.
-
-Per-frame output: (75, 4) = [x, y, z, visibility]
-  Indices  0..32  : 33 body landmarks (PoseLandmarker, image-space)
-  Indices 33..53  : 21 LEFT hand landmarks (HandLandmarker, image-space)
-  Indices 54..74  : 21 RIGHT hand landmarks (HandLandmarker, image-space)
-
-All x, y are in [0, 1] image-normalized. z is depth (different reference for
-body vs hands, but consistent within each part). Visibility is the real
-PoseLandmarker score for body joints; for hands we set 1.0 if a landmark was
-detected and 0.0 (with all-zero coords) if the hand was missing in that frame.
-
-Per-video output saved as a (T, 75, 4) float32 numpy array under
-extracted_skeletons_holistic/{train,val,test}/<class>/<video>.npy
-"""
 from pathlib import Path
 
 import cv2
@@ -31,8 +16,7 @@ HAND_MODEL          = ROOT_DIR / "hand_landmarker.task"
 
 NUM_BODY  = 33
 NUM_HAND  = 21
-NUM_NODES = NUM_BODY + 2 * NUM_HAND   # 75
-
+NUM_NODES = NUM_BODY + 2 * NUM_HAND
 
 def _make_pose_options():
     return vision.PoseLandmarkerOptions(
@@ -45,7 +29,6 @@ def _make_pose_options():
         min_tracking_confidence=0.5,
     )
 
-
 def _make_hand_options():
     return vision.HandLandmarkerOptions(
         base_options=python.BaseOptions(model_asset_path=str(HAND_MODEL),
@@ -57,16 +40,12 @@ def _make_hand_options():
         min_tracking_confidence=0.3,
     )
 
-
 def _resolve_video_path(raw_path: str) -> str:
-    """Splits CSVs were generated under WSL with Linux absolute paths.
-    Translate the suffix after 'haa500_v1_1/' to the local Windows ROOT_DIR."""
     p = raw_path.replace("\\", "/")
     if "haa500_v1_1/" in p:
         suffix = p.split("haa500_v1_1/", 1)[1]
         return str(ROOT_DIR / "haa500_v1_1" / suffix)
     return raw_path
-
 
 def extract_holistic(video_path: str) -> np.ndarray:
     cap = cv2.VideoCapture(video_path)
@@ -99,17 +78,14 @@ def extract_holistic(video_path: str) -> np.ndarray:
 
             row = np.zeros((NUM_NODES, 4), dtype=np.float32)
 
-            # Body
             if pose_res.pose_landmarks:
                 for i, lm in enumerate(pose_res.pose_landmarks[0]):
                     row[i] = [lm.x, lm.y, lm.z, lm.visibility]
 
-            # Hands — assign by handedness category. MediaPipe's "Left"/"Right"
-            # refers to the person's actual hand (camera-facing user convention).
             if hand_res.hand_landmarks:
                 for hand_lms, handedness in zip(hand_res.hand_landmarks,
                                                 hand_res.handedness):
-                    label = handedness[0].category_name  # "Left" or "Right"
+                    label = handedness[0].category_name
                     base  = NUM_BODY if label == "Left" else NUM_BODY + NUM_HAND
                     for i, lm in enumerate(hand_lms):
                         row[base + i] = [lm.x, lm.y, lm.z, 1.0]
@@ -124,7 +100,6 @@ def extract_holistic(video_path: str) -> np.ndarray:
     if not frames:
         return None
     return np.stack(frames, axis=0)
-
 
 def process_split(split_name: str, dry_limit: int = 0):
     csv_path = SPLITS_DIR / f"{split_name}_split.csv"
@@ -162,7 +137,6 @@ def process_split(split_name: str, dry_limit: int = 0):
             err += 1
 
     print(f"{split_name}: saved={ok}  skipped={skip}  errors={err}")
-
 
 if __name__ == "__main__":
     import argparse

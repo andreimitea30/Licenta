@@ -1,17 +1,3 @@
-"""
-ST-GCN v3 — addresses thesis-reviewer feedback on v2.
-
-Deltas vs v2:
-  * Temporal attention distributed across stages (last block of each: 3, 6, 9)
-    rather than concentrated on the last two blocks.
-  * Per-frame augmentation (scale, 2D rotation, cutout, joint dropout) so no
-    sample is seen identically twice across epochs.
-  * Class-balanced batch sampling via WeightedRandomSampler.
-
-Note on regularization: an early v3 variant lowered dropout to 0.3 and disabled
-mixup. Empirically that overfit (train-val gap doubled vs v2). We kept v2's
-DROPOUT=0.5 and MIXUP_ALPHA=0.3 — the regularization is load-bearing.
-"""
 
 import glob
 import os
@@ -30,7 +16,6 @@ FALLBACK_DIR    = ROOT_DIR / "extracted_skeletons"
 MODEL_SAVE_PATH = ROOT_DIR / "best_stgcn_v3.pth"
 CHECKPOINT_PATH = ROOT_DIR / "checkpoint_v3.pth"
 
-# ===== Hyperparameters =====
 NUM_EPOCHS    = 150
 BATCH_SIZE    = 32
 BASE_LR       = 0.001
@@ -42,14 +27,11 @@ MAX_FRAMES    = 60
 IN_CHANNELS   = 7
 DROPOUT       = 0.5
 DROP_PATH_MAX = 0.3
-MIXUP_ALPHA   = 0.3  # batch-level mixup; set 0 to disable
+MIXUP_ALPHA   = 0.3
 
-# Augmentation probabilities
 TEMPORAL_CUTOUT_PROB = 0.3
 JOINT_DROPOUT_PROB   = 0.3
 
-# Architectural toggles (overridable from a driver before instantiating models).
-# ATTENTION_BLOCKS: 0-indexed positions of STGCNBlocks that get TemporalAttention.
 ATTENTION_BLOCKS      = [3, 6, 9]
 USE_WEIGHTED_SAMPLER  = True
 
@@ -67,7 +49,6 @@ EDGES = [
     (27,29),(28,30),(29,31),(30,32),(27,31),(28,32),
 ]
 
-
 def normalize_skeleton(data: np.ndarray) -> np.ndarray:
     data = data.copy()
     C = data.shape[2]
@@ -83,7 +64,6 @@ def normalize_skeleton(data: np.ndarray) -> np.ndarray:
             data[:, :, :2] /= scale
     return data
 
-
 def compute_bone_features(data: np.ndarray) -> np.ndarray:
     T, V, C = data.shape
     C_pos = 3 if C == 4 else 2
@@ -97,14 +77,12 @@ def compute_bone_features(data: np.ndarray) -> np.ndarray:
     bone /= cnt[np.newaxis, :, np.newaxis]
     return bone
 
-
 def add_motion_features(data: np.ndarray) -> np.ndarray:
     C = data.shape[2]
     C_pos = 3 if C == 4 else 2
     vel = np.zeros_like(data[:, :, :C_pos])
     vel[1:] = data[1:, :, :C_pos] - data[:-1, :, :C_pos]
     return np.concatenate([data, vel], axis=2)
-
 
 def temporal_sample(data: np.ndarray, n: int, augment: bool) -> np.ndarray:
     T = data.shape[0]
@@ -117,9 +95,7 @@ def temporal_sample(data: np.ndarray, n: int, augment: bool) -> np.ndarray:
     pad = np.repeat(data[-1:], n - T, axis=0)
     return np.concatenate([data, pad], axis=0)
 
-
 def _augment_v2(data: np.ndarray) -> np.ndarray:
-    """v2's clip-level augmentation: flip, reverse, scale, per-frame noise."""
     data = data.copy()
     C = data.shape[2]
     C_pos = 3 if C >= 4 else 2
@@ -134,46 +110,37 @@ def _augment_v2(data: np.ndarray) -> np.ndarray:
     data[:, :, :C_pos] += noise
     return data
 
-
 def _augment_v3(data: np.ndarray) -> np.ndarray:
-    """v3's per-frame augmentation: per-frame scale/rotation/noise + cutout + joint dropout."""
     data = data.copy()
     T, V, C = data.shape
     C_pos = 3 if C >= 4 else 2
 
-    # Clip-level: horizontal flip (50%) with paired-joint swap.
     if np.random.random() < 0.5:
         data[:, :, 0] *= -1
         for l, r in FLIP_PAIRS:
             data[:, [l, r]] = data[:, [r, l]]
 
-    # Clip-level: temporal reversal (20%).
     if np.random.random() < 0.2:
         data = data[::-1].copy()
 
-    # Per-frame: scale jitter U(0.9, 1.1).
     scales = np.random.uniform(0.9, 1.1, size=(T, 1, 1)).astype(np.float32)
     data[:, :, :C_pos] *= scales
 
-    # Per-frame: small 2D rotation N(0, 5°) on (x, y). Skipped for 3D world coords.
     if C_pos == 2:
         theta = np.random.normal(0.0, np.deg2rad(5.0), size=T).astype(np.float32)
         cos_t, sin_t = np.cos(theta), np.sin(theta)
         R = np.stack([np.stack([cos_t, -sin_t], axis=-1),
-                      np.stack([sin_t,  cos_t], axis=-1)], axis=-2)  # (T, 2, 2)
+                      np.stack([sin_t,  cos_t], axis=-1)], axis=-2)
         data[:, :, :2] = np.einsum('tij,tvj->tvi', R, data[:, :, :2])
 
-    # Per-frame: Gaussian noise on positional channels.
     noise = np.random.randn(T, V, C_pos).astype(np.float32) * 0.02
     data[:, :, :C_pos] += noise
 
-    # Temporal cutout (30%): zero a contiguous span of 2-8 frames on all channels.
     if np.random.random() < TEMPORAL_CUTOUT_PROB and T > 2:
         length = int(np.random.randint(2, min(9, T)))
         start  = int(np.random.randint(0, T - length + 1))
         data[start:start + length] = 0.0
 
-    # Joint dropout (30%): zero 1-3 joints across all frames and channels.
     if np.random.random() < JOINT_DROPOUT_PROB:
         k = int(np.random.randint(1, 4))
         idx = np.random.choice(V, size=k, replace=False)
@@ -181,11 +148,8 @@ def _augment_v3(data: np.ndarray) -> np.ndarray:
 
     return data
 
-
 def augment_skeleton(data: np.ndarray) -> np.ndarray:
-    # Read env var at call time so DataLoader workers (re-imported module) pick it up.
     return _augment_v2(data) if os.environ.get('V3_AUGMENT_MODE', 'v3') == 'v2' else _augment_v3(data)
-
 
 class HAA500Dataset(Dataset):
     def __init__(self, split, class_to_idx=None, max_frames=MAX_FRAMES, augment=False):
@@ -250,7 +214,6 @@ class HAA500Dataset(Dataset):
         joint, bone = self._to_tensor(data)
         return joint, bone, torch.tensor(label, dtype=torch.long)
 
-
 class Graph:
     def __init__(self, num_node=33):
         self.num_node = num_node
@@ -261,12 +224,9 @@ class Graph:
         for i, j in EDGES:
             A[i, j] = A[j, i] = 1
         A += np.eye(self.num_node)
-        # Symmetric normalization D^(-1/2)(A+I)D^(-1/2) — Kipf & Welling, 2017.
-        # D is diagonal, so D^(-1/2) is self-transposed; np.diag(d) is correct on both sides.
         d = A.sum(1) ** -0.5
         A = np.diag(d) @ A @ np.diag(d)
         return torch.tensor(A, dtype=torch.float32).unsqueeze(0)
-
 
 class GraphConv(nn.Module):
     def __init__(self, in_ch, out_ch, A):
@@ -277,7 +237,6 @@ class GraphConv(nn.Module):
 
     def forward(self, x):
         return torch.einsum('nctv,vw->nctw', self.conv(x), self.A_fixed + self.A_learn)
-
 
 class MultiScaleTCN(nn.Module):
     def __init__(self, channels, stride=1):
@@ -301,7 +260,6 @@ class MultiScaleTCN(nn.Module):
     def forward(self, x):
         return self.bn(torch.cat([self.b3(x), self.b7(x), self.b9(x), self.bpool(x)], dim=1))
 
-
 class TemporalAttention(nn.Module):
     def __init__(self, channels, num_heads=8, dropout=0.1):
         super().__init__()
@@ -317,7 +275,6 @@ class TemporalAttention(nn.Module):
             out, _ = self.attn(q, q, q)
         out = self.norm(q + out).reshape(N, V, T, C).permute(0, 3, 2, 1)
         return x + out.to(orig_dtype)
-
 
 class STGCNBlock(nn.Module):
     def __init__(self, in_ch, out_ch, A, stride=1, residual=True,
@@ -351,7 +308,6 @@ class STGCNBlock(nn.Module):
             out = self.attn(out)
         return out
 
-
 class SingleStream(nn.Module):
     def __init__(self, num_classes=500, in_channels=IN_CHANNELS,
                  dropout=DROPOUT, drop_path_max=DROP_PATH_MAX):
@@ -362,16 +318,16 @@ class SingleStream(nn.Module):
         self.data_bn = nn.BatchNorm1d(in_channels * 33)
         attn_set = set(ATTENTION_BLOCKS)
         block_specs = [
-            (in_channels, 64,  1, False),  # 0
-            (64,  64,  1, True),           # 1
-            (64,  64,  1, True),           # 2
-            (64,  64,  1, True),           # 3
-            (64,  128, 2, True),           # 4
-            (128, 128, 1, True),           # 5
-            (128, 128, 1, True),           # 6
-            (128, 256, 2, True),           # 7
-            (256, 256, 1, True),           # 8
-            (256, 256, 1, True),           # 9
+            (in_channels, 64,  1, False),
+            (64,  64,  1, True),
+            (64,  64,  1, True),
+            (64,  64,  1, True),
+            (64,  128, 2, True),
+            (128, 128, 1, True),
+            (128, 128, 1, True),
+            (128, 256, 2, True),
+            (256, 256, 1, True),
+            (256, 256, 1, True),
         ]
         self.blocks = nn.ModuleList([
             STGCNBlock(ic, oc, A, stride=st, residual=res,
@@ -392,7 +348,6 @@ class SingleStream(nn.Module):
         x = F.adaptive_avg_pool2d(x, 1).view(N, M, -1).mean(dim=1)
         return self.fc(x)
 
-
 class TwoStreamSTGCN(nn.Module):
     def __init__(self, num_classes=500):
         super().__init__()
@@ -402,7 +357,6 @@ class TwoStreamSTGCN(nn.Module):
     def forward(self, joint, bone):
         return (self.joint_stream(joint) + self.bone_stream(bone)) / 2
 
-
 def mixup(joint, bone, y, alpha):
     lam = np.random.beta(alpha, alpha) if alpha > 0 else 1.0
     idx = torch.randperm(joint.size(0), device=joint.device)
@@ -410,10 +364,8 @@ def mixup(joint, bone, y, alpha):
             lam*bone  + (1-lam)*bone[idx],
             y, y[idx], lam)
 
-
 def mixup_loss(crit, pred, ya, yb, lam):
     return lam * crit(pred, ya) + (1-lam) * crit(pred, yb)
-
 
 def train(features_dir=None, num_epochs=NUM_EPOCHS,
           checkpoint_path=None, model_save_path=None,
@@ -449,8 +401,6 @@ def train(features_dir=None, num_epochs=NUM_EPOCHS,
 
     kw = dict(batch_size=BATCH_SIZE, num_workers=4, pin_memory=use_amp, persistent_workers=True)
     if USE_WEIGHTED_SAMPLER:
-        # Class-balanced sampler: 1 / class_count weights upsample rare classes and
-        # break the natural same-class-adjacent ordering of the file system.
         counts  = np.bincount(train_labels, minlength=500)
         weights = (1.0 / np.maximum(counts[train_labels], 1)).astype(np.float64)
         sampler = WeightedRandomSampler(weights, num_samples=len(train_ds), replacement=True)
@@ -538,7 +488,6 @@ def train(features_dir=None, num_epochs=NUM_EPOCHS,
             best_acc = top1
             torch.save(model.state_dict(), model_path)
             print(f"  --> New best: {best_acc:.1f}%")
-
 
 if __name__ == "__main__":
     train()

@@ -14,7 +14,6 @@ SPLITS_DIR = ROOT_DIR / "splits"
 OUTPUT_FEATURES_DIR = ROOT_DIR / "extracted_skeletons"
 MODEL_PATH = ROOT_DIR / "pose_landmarker_full.task"
 
-
 def ensure_model():
     if not MODEL_PATH.exists():
         print("Downloading MediaPipe Pose Landmarker model...")
@@ -22,7 +21,6 @@ def ensure_model():
             "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task",
             MODEL_PATH,
         )
-
 
 def make_landmarker_options():
     base_options = python.BaseOptions(model_asset_path=str(MODEL_PATH))
@@ -34,7 +32,6 @@ def make_landmarker_options():
         min_pose_presence_confidence=0.5,
         min_tracking_confidence=0.5,
     )
-
 
 def extract_skeleton_from_video(video_path):
     cap = cv2.VideoCapture(video_path)
@@ -77,7 +74,6 @@ def extract_skeleton_from_video(video_path):
 
     return np.array(frames_data)
 
-
 def process_split(split_name):
     csv_path = SPLITS_DIR / f"{split_name}_split.csv"
     if not csv_path.exists():
@@ -113,7 +109,6 @@ def process_split(split_name):
             print(f"Error processing {video_path}: {e}")
 
     print(f"Finished {split_name}: {success_count}/{len(df)} successfully extracted.")
-
 
 if __name__ == "__main__":
     ensure_model()

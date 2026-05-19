@@ -13,7 +13,6 @@ SPLITS_DIR          = ROOT_DIR / "splits"
 OUTPUT_FEATURES_DIR = ROOT_DIR / "extracted_skeletons_world"
 MODEL_PATH          = ROOT_DIR / "pose_landmarker_full.task"
 
-
 def make_landmarker_options():
     base_options = python.BaseOptions(
         model_asset_path=str(MODEL_PATH),
@@ -27,7 +26,6 @@ def make_landmarker_options():
         min_pose_presence_confidence=0.5,
         min_tracking_confidence=0.5,
     )
-
 
 def extract_skeleton_3d(video_path: str):
     cap = cv2.VideoCapture(video_path)
@@ -69,7 +67,6 @@ def extract_skeleton_3d(video_path: str):
     cap.release()
     return np.array(frames_data) if frames_data else None
 
-
 def process_split(split_name: str):
     csv_path = SPLITS_DIR / f"{split_name}_split.csv"
     if not csv_path.exists():
@@ -103,7 +100,6 @@ def process_split(split_name: str):
             err += 1
 
     print(f"{split_name}: saved={ok}  skipped={skip}  errors={err}")
-
 
 if __name__ == "__main__":
     assert MODEL_PATH.exists(), f"Task file not found: {MODEL_PATH}"

@@ -1,8 +1,3 @@
-"""Train v4 with EMA + TTA on for 50 epochs and present a 4-way ablation:
-   live | live+TTA | EMA | EMA+TTA — all extracted from a single training run.
-
-Compares against compare_v2_v4_v4.log (the v4-baseline overnight run, no EMA / no TTA).
-"""
 import argparse
 import re
 import sys
@@ -15,7 +10,6 @@ import torch
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
 
-# Live no-TTA line (same regex as the compare_v2_v4 driver — kept for backward compat)
 LIVE_RE     = re.compile(
     r"Epoch\s+(\d+)/\d+\s*\|\s*LR\s+([\d.eE+-]+)\s*\|\s*"
     r"Train\s+([\d.]+)/([\d.]+)%\s*\|\s*"
@@ -25,13 +19,11 @@ LIVE_TTA_RE = re.compile(r"Live\+TTA\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%")
 EMA_RE      = re.compile(r"EMA\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%")
 EMA_TTA_RE  = re.compile(r"EMA\+TTA\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%")
 
-
 def set_seed(seed: int) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-
 
 class Tee:
     def __init__(self, *streams): self.streams = streams
@@ -41,9 +33,7 @@ class Tee:
     def flush(self):
         for st in self.streams: st.flush()
 
-
 def parse_log(path: Path):
-    """Return list of dicts, one per epoch, with all 4 metric variants when present."""
     if not path.exists(): return []
     text = path.read_text(encoding="utf-8")
     lines = text.splitlines()
@@ -71,7 +61,6 @@ def parse_log(path: Path):
             cur["ema_t1"] = float(m.group(1)); cur["ema_t5"] = float(m.group(2)); continue
     if cur: rows.append(cur)
     return rows
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -101,7 +90,7 @@ def main():
         finally:
             sys.stdout = real_stdout
 
-    base_rows = parse_log(ROOT / "compare_v2_v4_v4.log")  # v4 baseline (no EMA / no TTA)
+    base_rows = parse_log(ROOT / "compare_v2_v4_v4.log")
     new_rows  = parse_log(log)
 
     print("\n=== 4-WAY ABLATION (single training run) ===")
@@ -138,7 +127,6 @@ def main():
     stat(new_rows, 'live_tta_t1', 'live_tta_t5', 'v4 + TTA')
     stat(new_rows, 'ema_t1',      'ema_t5',      'v4 + EMA')
     stat(new_rows, 'ema_tta_t1',  'ema_tta_t5',  'v4 + EMA + TTA')
-
 
 if __name__ == "__main__":
     main()

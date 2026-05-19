@@ -1,12 +1,3 @@
-"""Two targeted bisects of v3 architectural changes (regularization restored: DROPOUT=0.5, mixup=0.3).
-
-Bisect A: revert sampler to plain shuffle=True (keep distributed attention [3,6,9]).
-Bisect B: revert attention to v2 placement [8,9]   (keep weighted sampler).
-
-Compare against existing 30-epoch logs from prior runs:
-  compare_v2.log         -> v2 baseline
-  compare_v3_hireg.log   -> v3 with all changes (high-reg)
-"""
 import argparse
 import re
 import sys
@@ -25,13 +16,11 @@ EPOCH_RE = re.compile(
     r"Val\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%"
 )
 
-
 def set_seed(seed: int) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-
 
 class Tee:
     def __init__(self, *streams):
@@ -42,7 +31,6 @@ class Tee:
     def flush(self):
         for st in self.streams:
             st.flush()
-
 
 def parse_log(path: Path):
     rows = []
@@ -55,13 +43,11 @@ def parse_log(path: Path):
                      "val_top5":   float(m.group(6))})
     return rows
 
-
 def run_bisect(label, attention_blocks, use_weighted_sampler,
                num_epochs, seed, log_path, ckpt, best):
     for p in (ckpt, best):
         if p.exists(): p.unlink()
 
-    # Reload v3 fresh for each bisect so toggles take effect on a clean module state
     if "st_gcn_v3" in sys.modules:
         del sys.modules["st_gcn_v3"]
     import st_gcn_v3 as v3
@@ -85,7 +71,6 @@ def run_bisect(label, attention_blocks, use_weighted_sampler,
             traceback.print_exc(file=sys.stdout)
         finally:
             sys.stdout = real_stdout
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -143,7 +128,6 @@ def main():
         if rows and hi:
             print(f"  {label}: Top-1 {rows[-1]['val_top1']-hi[-1]['val_top1']:+.2f}pp,  "
                   f"Top-5 {rows[-1]['val_top5']-hi[-1]['val_top5']:+.2f}pp")
-
 
 if __name__ == "__main__":
     main()

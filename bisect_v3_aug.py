@@ -1,11 +1,3 @@
-"""Bisect C: v3 with v2's augmentation (per-frame transforms reverted).
-
-Sets V3_AUGMENT_MODE=v2 in the environment BEFORE importing st_gcn_v3 so DataLoader
-workers (Windows = spawn) inherit the env var when they re-import the module.
-
-All other v3 settings stay at their defaults: DROPOUT=0.5, MIXUP_ALPHA=0.3,
-ATTENTION_BLOCKS=[3,6,9], USE_WEIGHTED_SAMPLER=True.
-"""
 import argparse
 import os
 import re
@@ -16,7 +8,6 @@ from pathlib import Path
 import numpy as np
 import torch
 
-# Set env var BEFORE importing st_gcn_v3 (so the module-level state is consistent).
 os.environ["V3_AUGMENT_MODE"] = "v2"
 
 ROOT = Path(__file__).resolve().parent
@@ -28,13 +19,11 @@ EPOCH_RE = re.compile(
     r"Val\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%"
 )
 
-
 def set_seed(seed: int) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-
 
 class Tee:
     def __init__(self, *streams): self.streams = streams
@@ -43,7 +32,6 @@ class Tee:
             st.write(s); st.flush()
     def flush(self):
         for st in self.streams: st.flush()
-
 
 def parse_log(path: Path):
     rows = []
@@ -54,7 +42,6 @@ def parse_log(path: Path):
                      "val_top1":  float(m.group(5)),
                      "val_top5":  float(m.group(6))})
     return rows
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -86,7 +73,6 @@ def main():
         finally:
             sys.stdout = real_stdout
 
-    # 5-way summary
     logs = {
         'v2 baseline'         : ROOT / 'compare_v2.log',
         'v3 hi-reg'           : ROOT / 'compare_v3_hireg.log',
@@ -108,7 +94,6 @@ def main():
         print(f'{name:<22} | {best_t1["val_top1"]:>9.1f}%  ({best_t1["epoch"]:>2}) | '
               f'{best_t5["val_top5"]:>9.1f}%  ({best_t5["epoch"]:>2}) | '
               f'{last5_t1:>13.1f}% | {last5_t5:>13.1f}% | {gap:>4.1f}pp')
-
 
 if __name__ == "__main__":
     main()

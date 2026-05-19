@@ -23,7 +23,6 @@ POSE_CONNECTIONS = [
     (27, 29), (28, 30), (29, 31), (30, 32), (27, 31), (28, 32),
 ]
 
-
 def draw_skeleton(frame, landmarks, width, height):
     for start_idx, end_idx in POSE_CONNECTIONS:
         pt1, pt2 = landmarks[start_idx], landmarks[end_idx]
@@ -36,7 +35,6 @@ def draw_skeleton(frame, landmarks, width, height):
             x, y = int(landmark[0] * width), int(landmark[1] * height)
             cv2.circle(frame, (x, y), 4, (0, 0, 255), -1)
 
-
 def draw_label(frame, class_name):
     label = class_name.replace("_", " ")
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -45,7 +43,6 @@ def draw_label(frame, class_name):
     pad = 6
     cv2.rectangle(frame, (8, 8), (8 + tw + pad * 2, 8 + th + pad * 2 + baseline), (0, 0, 0), -1)
     cv2.putText(frame, label, (8 + pad, 8 + pad + th), font, scale, (255, 255, 255), thickness, cv2.LINE_AA)
-
 
 def find_clip_for_class(class_name):
     for split in ("train", "val", "test"):
@@ -59,7 +56,6 @@ def find_clip_for_class(class_name):
                 if video_path.exists():
                     return video_path, npy_path
     return None, None
-
 
 def render_clip(cap, skeleton_data, class_name, writer):
     src_fps = cap.get(cv2.CAP_PROP_FPS) or OUTPUT_FPS
@@ -91,7 +87,6 @@ def render_clip(cap, skeleton_data, class_name, writer):
             draw_label(last_frame, class_name)
             for _ in range(CLIP_FRAMES - out_frame_idx):
                 writer.write(last_frame)
-
 
 def main():
     classes = sorted([d.name for d in VIDEO_DIR.iterdir() if d.is_dir()])
@@ -127,7 +122,6 @@ def main():
         print(f"\nSkipped {skipped} / {len(classes)} classes.")
     print(f"Compilation saved to {OUTPUT_VIDEO}")
     print(f"Total duration: ~{(len(classes) - skipped) * CLIP_SECONDS / 60:.1f} minutes")
-
 
 if __name__ == "__main__":
     main()

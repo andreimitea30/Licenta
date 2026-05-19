@@ -1,11 +1,3 @@
-"""Run st_gcn_v2 and st_gcn_v3 head-to-head for a few epochs and print a side-by-side comparison.
-
-Existing best_stgcn_v2.pth / checkpoint_v2.pth are NOT touched: each model writes to a
-dedicated _compare_* file under the project root.
-
-Per-epoch summary lines from each train() are streamed to dedicated *.log files so
-output is preserved even if a run crashes.
-"""
 import argparse
 import re
 import sys
@@ -24,16 +16,13 @@ EPOCH_RE = re.compile(
     r"Val\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%"
 )
 
-
 def set_seed(seed: int) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-
 class Tee:
-    """Write to multiple streams; flush each line immediately so the log survives crashes."""
     def __init__(self, *streams):
         self.streams = streams
 
@@ -45,7 +34,6 @@ class Tee:
     def flush(self):
         for st in self.streams:
             st.flush()
-
 
 def run_one(label: str, train_fn, num_epochs: int, ckpt: Path, best: Path,
             seed: int, log_path: Path):
@@ -74,7 +62,6 @@ def run_one(label: str, train_fn, num_epochs: int, ckpt: Path, best: Path,
             "val_top5": float(m.group(6)),
         })
     return rows
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -119,7 +106,6 @@ def main():
         print(f"\nFinal-epoch deltas (v3 - v2): "
               f"Top-1 {last_v3['val_top1'] - last_v2['val_top1']:+.2f}pp, "
               f"Top-5 {last_v3['val_top5'] - last_v2['val_top5']:+.2f}pp")
-
 
 if __name__ == "__main__":
     main()

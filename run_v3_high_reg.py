@@ -1,6 +1,3 @@
-"""Run v3 (current defaults — DROPOUT=0.5, MIXUP_ALPHA=0.3) for 30 epochs and present
-a 3-way comparison against the existing v2 and v3-low-reg logs from the previous run.
-"""
 import argparse
 import re
 import sys
@@ -19,13 +16,11 @@ EPOCH_RE = re.compile(
     r"Val\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%"
 )
 
-
 def set_seed(seed: int) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-
 
 class Tee:
     def __init__(self, *streams):
@@ -36,7 +31,6 @@ class Tee:
     def flush(self):
         for st in self.streams:
             st.flush()
-
 
 def parse_log(path: Path):
     rows = []
@@ -49,7 +43,6 @@ def parse_log(path: Path):
                      "val_top1":   float(m.group(5)),
                      "val_top5":   float(m.group(6))})
     return rows
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -79,9 +72,9 @@ def main():
         finally:
             sys.stdout = real_stdout
 
-    v2  = parse_log(ROOT / "compare_v2.log")        # 30-epoch v2 baseline
-    v3l = parse_log(ROOT / "compare_v3.log")        # v3 low-reg (DROPOUT=0.3, mixup=0)
-    v3h = parse_log(log)                            # v3 v2-reg (DROPOUT=0.5, mixup=0.3)
+    v2  = parse_log(ROOT / "compare_v2.log")
+    v3l = parse_log(ROOT / "compare_v3.log")
+    v3h = parse_log(log)
 
     print("\n=== 30-EPOCH 3-WAY: v2 / v3 low-reg / v3 v2-reg ===")
     h = (f"{'E':>2} | "
@@ -112,7 +105,6 @@ def main():
         print(f"Final-epoch v3 v2-reg vs v3 low-reg: "
               f"Top-1 {c['val_top1']-b['val_top1']:+.2f}pp, "
               f"Top-5 {c['val_top5']-b['val_top5']:+.2f}pp")
-
 
 if __name__ == "__main__":
     main()

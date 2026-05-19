@@ -42,7 +42,6 @@ EDGES = [
     (27,29),(28,30),(29,31),(30,32),(27,31),(28,32),
 ]
 
-
 def normalize_skeleton(data: np.ndarray) -> np.ndarray:
     data = data.copy()
     C = data.shape[2]
@@ -58,7 +57,6 @@ def normalize_skeleton(data: np.ndarray) -> np.ndarray:
             data[:, :, :2] /= scale
     return data
 
-
 def compute_bone_features(data: np.ndarray) -> np.ndarray:
     T, V, C = data.shape
     C_pos = 3 if C == 4 else 2
@@ -72,14 +70,12 @@ def compute_bone_features(data: np.ndarray) -> np.ndarray:
     bone /= cnt[np.newaxis, :, np.newaxis]
     return bone
 
-
 def add_motion_features(data: np.ndarray) -> np.ndarray:
     C = data.shape[2]
     C_pos = 3 if C == 4 else 2
     vel = np.zeros_like(data[:, :, :C_pos])
     vel[1:] = data[1:, :, :C_pos] - data[:-1, :, :C_pos]
     return np.concatenate([data, vel], axis=2)
-
 
 def temporal_sample(data: np.ndarray, n: int, augment: bool) -> np.ndarray:
     T = data.shape[0]
@@ -91,7 +87,6 @@ def temporal_sample(data: np.ndarray, n: int, augment: bool) -> np.ndarray:
         return data[start:start+n]
     pad = np.repeat(data[-1:], n - T, axis=0)
     return np.concatenate([data, pad], axis=0)
-
 
 def augment_skeleton(data: np.ndarray) -> np.ndarray:
     data = data.copy()
@@ -107,7 +102,6 @@ def augment_skeleton(data: np.ndarray) -> np.ndarray:
     noise = np.random.randn(data.shape[0], data.shape[1], C_pos).astype(np.float32) * 0.02
     data[:, :, :C_pos] += noise
     return data
-
 
 class HAA500Dataset(Dataset):
     def __init__(self, split, class_to_idx=None, max_frames=MAX_FRAMES, augment=False):
@@ -172,7 +166,6 @@ class HAA500Dataset(Dataset):
         joint, bone = self._to_tensor(data)
         return joint, bone, torch.tensor(label, dtype=torch.long)
 
-
 class Graph:
     def __init__(self, num_node=33):
         self.num_node = num_node
@@ -187,7 +180,6 @@ class Graph:
         A = np.diag(d) @ A @ np.diag(d)
         return torch.tensor(A, dtype=torch.float32).unsqueeze(0)
 
-
 class GraphConv(nn.Module):
     def __init__(self, in_ch, out_ch, A):
         super().__init__()
@@ -197,7 +189,6 @@ class GraphConv(nn.Module):
 
     def forward(self, x):
         return torch.einsum('nctv,vw->nctw', self.conv(x), self.A_fixed + self.A_learn)
-
 
 class MultiScaleTCN(nn.Module):
     def __init__(self, channels, stride=1):
@@ -221,7 +212,6 @@ class MultiScaleTCN(nn.Module):
     def forward(self, x):
         return self.bn(torch.cat([self.b3(x), self.b7(x), self.b9(x), self.bpool(x)], dim=1))
 
-
 class TemporalAttention(nn.Module):
     def __init__(self, channels, num_heads=8, dropout=0.1):
         super().__init__()
@@ -237,7 +227,6 @@ class TemporalAttention(nn.Module):
             out, _ = self.attn(q, q, q)
         out = self.norm(q + out).reshape(N, V, T, C).permute(0, 3, 2, 1)
         return x + out.to(orig_dtype)
-
 
 class STGCNBlock(nn.Module):
     def __init__(self, in_ch, out_ch, A, stride=1, residual=True,
@@ -270,7 +259,6 @@ class STGCNBlock(nn.Module):
         if self.attn is not None:
             out = self.attn(out)
         return out
-
 
 class SingleStream(nn.Module):
     def __init__(self, num_classes=500, in_channels=IN_CHANNELS,
@@ -305,7 +293,6 @@ class SingleStream(nn.Module):
         x = F.adaptive_avg_pool2d(x, 1).view(N, M, -1).mean(dim=1)
         return self.fc(x)
 
-
 class TwoStreamSTGCN(nn.Module):
     def __init__(self, num_classes=500):
         super().__init__()
@@ -314,7 +301,6 @@ class TwoStreamSTGCN(nn.Module):
 
     def forward(self, joint, bone):
         return (self.joint_stream(joint) + self.bone_stream(bone)) / 2
-
 
 def mixup(joint, bone, y, alpha=MIXUP_ALPHA):
     lam = np.random.beta(alpha, alpha) if alpha > 0 else 1.0
@@ -325,7 +311,6 @@ def mixup(joint, bone, y, alpha=MIXUP_ALPHA):
 
 def mixup_loss(crit, pred, ya, yb, lam):
     return lam * crit(pred, ya) + (1-lam) * crit(pred, yb)
-
 
 def train(features_dir=None, num_epochs=NUM_EPOCHS,
           checkpoint_path=None, model_save_path=None,
@@ -436,7 +421,6 @@ def train(features_dir=None, num_epochs=NUM_EPOCHS,
             best_acc = top1
             torch.save(model.state_dict(), model_path)
             print(f"  --> New best: {best_acc:.1f}%")
-
 
 if __name__ == "__main__":
     train()

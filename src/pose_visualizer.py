@@ -12,7 +12,6 @@ POSE_CONNECTIONS = [
     (27, 29), (28, 30), (29, 31), (30, 32), (27, 31), (28, 32),
 ]
 
-
 def visualize_skeleton(video_path, npy_path):
     video_path = Path(video_path)
     npy_path = Path(npy_path)
@@ -63,7 +62,6 @@ def visualize_skeleton(video_path, npy_path):
 
     cap.release()
     cv2.destroyAllWindows()
-
 
 if __name__ == "__main__":
     ROOT_DIR = Path(__file__).resolve().parent.parent

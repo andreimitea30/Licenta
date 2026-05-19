@@ -7,7 +7,6 @@ METADATA_CSV = ROOT_DIR / "HAA500_consolidated_metadata.csv"
 VIDEO_DIR = ROOT_DIR / "haa500_v1_1" / "video"
 OUTPUT_DIR = ROOT_DIR / "splits"
 
-
 def main():
     print("Loading consolidated metadata...")
     df = pd.read_csv(METADATA_CSV)
@@ -60,7 +59,6 @@ def main():
     print(f"Train: {len(train_df)} videos")
     print(f"Validation: {len(val_df)} videos")
     print(f"Test: {len(test_df)} videos")
-
 
 if __name__ == "__main__":
     main()

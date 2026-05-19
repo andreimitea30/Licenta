@@ -1,20 +1,3 @@
-"""
-ST-GCN v5 — extends v4 (3-stream ST-GCN) from a 33-node body skeleton to a
-75-node body+hands skeleton.
-
-Skeleton layout (NUM_NODES=75):
-  Indices  0..32  : 33 body landmarks (MediaPipe Pose convention)
-  Indices 33..53  : 21 LEFT hand landmarks (MediaPipe Hand convention; wrist at 33)
-  Indices 54..74  : 21 RIGHT hand landmarks (MediaPipe Hand convention; wrist at 54)
-
-Reads from extracted_skeletons_holistic/{train|val|test}/<class>/<video>.npy
-produced by src/pose_extraction_holistic.py. No 33-node fallback because the
-two layouts are not interchangeable.
-
-Everything else is inherited from v4: 3-stream joint+bone+motion fusion,
-DROPOUT=0.5, MIXUP_ALPHA=0.3, attention on blocks [8,9], EMA + TTA enabled
-by default, clip-level augmentation, plain shuffled DataLoader.
-"""
 import copy
 import glob
 import os
@@ -33,42 +16,37 @@ MODEL_SAVE_PATH = ROOT_DIR / "best_stgcn_v5.pth"
 CHECKPOINT_PATH = ROOT_DIR / "checkpoint_v5.pth"
 
 NUM_EPOCHS    = 150
-BATCH_SIZE    = 16   # reduced from 32 to fit V=75 in 8GB without memory pressure
+BATCH_SIZE    = 16
 BASE_LR       = 0.001
 WEIGHT_DECAY  = 5e-4
 WARMUP_EPOCHS = 5
 LABEL_SMOOTH  = 0.15
 GRAD_CLIP     = 1.0
 MAX_FRAMES    = 60
-IN_CHANNELS   = 4   # x/y/z/vis OR vx/vy/vz/vis OR bx/by/bz/vis
+IN_CHANNELS   = 4
 DROPOUT       = 0.5
 DROP_PATH_MAX = 0.3
 MIXUP_ALPHA   = 0.3
 
-# Free-win recipes (ablation toggles)
 USE_EMA   = True
 USE_TTA   = True
 EMA_DECAY = 0.999
 
-# Skeleton topology
 NUM_BODY        = 33
 NUM_HAND        = 21
-LEFT_HAND_BASE  = NUM_BODY                 # 33
-RIGHT_HAND_BASE = NUM_BODY + NUM_HAND      # 54
-NUM_NODES       = NUM_BODY + 2 * NUM_HAND  # 75
+LEFT_HAND_BASE  = NUM_BODY
+RIGHT_HAND_BASE = NUM_BODY + NUM_HAND
+NUM_NODES       = NUM_BODY + 2 * NUM_HAND
 
-# Body left/right pairs (from MediaPipe pose), unchanged from v4.
 _BODY_FLIP_PAIRS = [
     (1,4),(2,5),(3,6),(7,8),(9,10),
     (11,12),(13,14),(15,16),(17,18),(19,20),(21,22),
     (23,24),(25,26),(27,28),(29,30),(31,32),
 ]
-# Hand left/right mirror: i-th left-hand landmark <-> i-th right-hand landmark.
 _HAND_FLIP_PAIRS = [(LEFT_HAND_BASE + i, RIGHT_HAND_BASE + i)
                     for i in range(NUM_HAND)]
 FLIP_PAIRS = _BODY_FLIP_PAIRS + _HAND_FLIP_PAIRS
 
-# Body edges (MediaPipe pose graph), unchanged from v4.
 _BODY_EDGES = [
     (0,1),(1,2),(2,3),(3,7),(0,4),(4,5),(5,6),(6,8),(9,10),
     (11,12),(11,13),(13,15),(15,17),(15,19),(15,21),(17,19),
@@ -76,16 +54,14 @@ _BODY_EDGES = [
     (11,23),(12,24),(23,24),(23,25),(24,26),(25,27),(26,28),
     (27,29),(28,30),(29,31),(30,32),(27,31),(28,32),
 ]
-# MediaPipe HandLandmarker topology (intra-hand connections).
 _HAND_EDGES = [
-    (0, 1), (1, 2), (2, 3), (3, 4),         # Thumb
-    (0, 5), (5, 6), (6, 7), (7, 8),         # Index
-    (5, 9), (9, 10), (10, 11), (11, 12),    # Middle
-    (9, 13), (13, 14), (14, 15), (15, 16),  # Ring
-    (13, 17), (17, 18), (18, 19), (19, 20), # Pinky
-    (0, 17),                                # Palm closure
+    (0, 1), (1, 2), (2, 3), (3, 4),
+    (0, 5), (5, 6), (6, 7), (7, 8),
+    (5, 9), (9, 10), (10, 11), (11, 12),
+    (9, 13), (13, 14), (14, 15), (15, 16),
+    (13, 17), (17, 18), (18, 19), (19, 20),
+    (0, 17),
 ]
-# Cross-part connectors: body wrist -> hand wrist
 _BODY_LEFT_WRIST  = 15
 _BODY_RIGHT_WRIST = 16
 _CONNECTORS = [
@@ -98,7 +74,6 @@ EDGES = (
     + [(RIGHT_HAND_BASE + i, RIGHT_HAND_BASE + j) for (i, j) in _HAND_EDGES]
     + _CONNECTORS
 )
-
 
 def normalize_skeleton(data: np.ndarray) -> np.ndarray:
     data = data.copy()
@@ -115,7 +90,6 @@ def normalize_skeleton(data: np.ndarray) -> np.ndarray:
             data[:, :, :2] /= scale
     return data
 
-
 def compute_bone_features(data: np.ndarray) -> np.ndarray:
     T, V, C = data.shape
     C_pos = 3 if C == 4 else 2
@@ -129,14 +103,12 @@ def compute_bone_features(data: np.ndarray) -> np.ndarray:
     bone /= cnt[np.newaxis, :, np.newaxis]
     return bone
 
-
 def add_motion_features(data: np.ndarray) -> np.ndarray:
     C = data.shape[2]
     C_pos = 3 if C == 4 else 2
     vel = np.zeros_like(data[:, :, :C_pos])
     vel[1:] = data[1:, :, :C_pos] - data[:-1, :, :C_pos]
     return np.concatenate([data, vel], axis=2)
-
 
 def temporal_sample(data: np.ndarray, n: int, augment: bool) -> np.ndarray:
     T = data.shape[0]
@@ -148,7 +120,6 @@ def temporal_sample(data: np.ndarray, n: int, augment: bool) -> np.ndarray:
         return data[start:start+n]
     pad = np.repeat(data[-1:], n - T, axis=0)
     return np.concatenate([data, pad], axis=0)
-
 
 def augment_skeleton(data: np.ndarray) -> np.ndarray:
     data = data.copy()
@@ -164,7 +135,6 @@ def augment_skeleton(data: np.ndarray) -> np.ndarray:
     noise = np.random.randn(data.shape[0], data.shape[1], C_pos).astype(np.float32) * 0.02
     data[:, :, :C_pos] += noise
     return data
-
 
 class HAA500Dataset(Dataset):
     def __init__(self, split, class_to_idx=None, max_frames=MAX_FRAMES, augment=False):
@@ -191,20 +161,15 @@ class HAA500Dataset(Dataset):
 
         T, V, C = data.shape
         C_pos = 3 if C == 4 else 2
-        pos    = data[:, :, :C_pos]                # (T, V, C_pos)
-        vis_ch = data[:, :, C_pos:C_pos + 1]       # (T, V, 1)
+        pos    = data[:, :, :C_pos]
+        vis_ch = data[:, :, C_pos:C_pos + 1]
 
-        # Bone vectors: edge-wise positional differences.
-        bone_pos = compute_bone_features(data)     # (T, V, C_pos)
+        bone_pos = compute_bone_features(data)
 
-        # Joint velocities: temporal first differences (frame 0 stays zero).
         velocity = np.zeros_like(pos)
         velocity[1:] = pos[1:] - pos[:-1]
 
         def pack_4ch(features_3d_or_2d: np.ndarray) -> np.ndarray:
-            """Pack (T, V, C_pos) features + visibility into IN_CHANNELS=4 channels.
-            For 2D inputs (C_pos=2), the z slot is zero-padded so the model sees a
-            consistent 4-channel layout regardless of source modality."""
             if C_pos == 3:
                 return np.concatenate([features_3d_or_2d, vis_ch], axis=2)
             zero_z = np.zeros_like(vis_ch)
@@ -229,7 +194,6 @@ class HAA500Dataset(Dataset):
         joint, bone, motion = self._to_tensor(data)
         return joint, bone, motion, torch.tensor(label, dtype=torch.long)
 
-
 class Graph:
     def __init__(self, num_node=NUM_NODES):
         self.num_node = num_node
@@ -244,7 +208,6 @@ class Graph:
         A = np.diag(d) @ A @ np.diag(d)
         return torch.tensor(A, dtype=torch.float32).unsqueeze(0)
 
-
 class GraphConv(nn.Module):
     def __init__(self, in_ch, out_ch, A):
         super().__init__()
@@ -254,7 +217,6 @@ class GraphConv(nn.Module):
 
     def forward(self, x):
         return torch.einsum('nctv,vw->nctw', self.conv(x), self.A_fixed + self.A_learn)
-
 
 class MultiScaleTCN(nn.Module):
     def __init__(self, channels, stride=1):
@@ -278,7 +240,6 @@ class MultiScaleTCN(nn.Module):
     def forward(self, x):
         return self.bn(torch.cat([self.b3(x), self.b7(x), self.b9(x), self.bpool(x)], dim=1))
 
-
 class TemporalAttention(nn.Module):
     def __init__(self, channels, num_heads=8, dropout=0.1):
         super().__init__()
@@ -294,7 +255,6 @@ class TemporalAttention(nn.Module):
             out, _ = self.attn(q, q, q)
         out = self.norm(q + out).reshape(N, V, T, C).permute(0, 3, 2, 1)
         return x + out.to(orig_dtype)
-
 
 class STGCNBlock(nn.Module):
     def __init__(self, in_ch, out_ch, A, stride=1, residual=True,
@@ -327,7 +287,6 @@ class STGCNBlock(nn.Module):
         if self.attn is not None:
             out = self.attn(out)
         return out
-
 
 class SingleStream(nn.Module):
     def __init__(self, num_classes=500, in_channels=IN_CHANNELS,
@@ -362,7 +321,6 @@ class SingleStream(nn.Module):
         x = F.adaptive_avg_pool2d(x, 1).view(N, M, -1).mean(dim=1)
         return self.fc(x)
 
-
 class ThreeStreamSTGCN(nn.Module):
     def __init__(self, num_classes=500):
         super().__init__()
@@ -375,7 +333,6 @@ class ThreeStreamSTGCN(nn.Module):
                 + self.bone_stream(bone)
                 + self.motion_stream(motion)) / 3
 
-
 def mixup(joint, bone, motion, y, alpha=MIXUP_ALPHA):
     lam = np.random.beta(alpha, alpha) if alpha > 0 else 1.0
     idx = torch.randperm(joint.size(0), device=joint.device)
@@ -387,11 +344,7 @@ def mixup(joint, bone, motion, y, alpha=MIXUP_ALPHA):
 def mixup_loss(crit, pred, ya, yb, lam):
     return lam * crit(pred, ya) + (1-lam) * crit(pred, yb)
 
-
 class ModelEMA:
-    """Exponential moving average of model parameters and buffers.
-    Float-tensor entries get EMA-updated; integer buffers (e.g. BN's
-    num_batches_tracked) are copied from the live model."""
     def __init__(self, model, decay=EMA_DECAY):
         self.decay  = decay
         self.module = copy.deepcopy(model).eval()
@@ -414,12 +367,7 @@ class ModelEMA:
         self.decay = sd.get("decay", self.decay)
         self.module.load_state_dict(sd["module"])
 
-
 def _hflip_streams(joint, bone, motion):
-    """Tensor-level horizontal flip on already-packed (N, C, T, V, M) inputs.
-    Negates the x-component (channel 0) of each stream and swaps paired joints
-    in the V dimension. For joint stream this is exact; for bone/motion it is
-    the natural mirror operation given how they're derived from positions."""
     def _flip(x):
         x = x.clone()
         x[:, 0] *= -1
@@ -427,7 +375,6 @@ def _hflip_streams(joint, bone, motion):
             x[:, :, :, [l, r], :] = x[:, :, :, [r, l], :]
         return x
     return _flip(joint), _flip(bone), _flip(motion)
-
 
 def _evaluate(model, loader, device, use_amp, criterion, use_tta: bool):
     model.eval()
@@ -444,7 +391,7 @@ def _evaluate(model, loader, device, use_amp, criterion, use_tta: bool):
                     j2, b2, m2 = _hflip_streams(joint, bone, motion)
                     logits2 = model(j2, b2, m2)
                     probs = (logits.softmax(-1) + logits2.softmax(-1)) / 2
-                    loss  = criterion(probs.log(), y)  # NLL on averaged probs ~ XE
+                    loss  = criterion(probs.log(), y)
                 else:
                     probs = logits.softmax(-1)
                     loss  = criterion(logits, y)
@@ -453,7 +400,6 @@ def _evaluate(model, loader, device, use_amp, criterion, use_tta: bool):
             top5 += probs.topk(5, 1)[1].eq(y.view(-1, 1)).any(1).sum().item()
             total += y.size(0)
     return loss_sum / max(1, len(loader)), 100.0 * top1 / total, 100.0 * top5 / total
-
 
 def train(features_dir=None, num_epochs=NUM_EPOCHS,
           checkpoint_path=None, model_save_path=None,
@@ -541,8 +487,6 @@ def train(features_dir=None, num_epochs=NUM_EPOCHS,
             tr_total   += y.size(0)
         scheduler.step()
 
-        # Live model evaluation (no TTA) — keeps the legacy log line so prior
-        # parsers and ablation scripts continue to work.
         live_loss, live_top1, live_top5 = _evaluate(
             model, val_loader, device, use_amp, criterion, use_tta=False)
 
@@ -561,11 +505,9 @@ def train(features_dir=None, num_epochs=NUM_EPOCHS,
 
         tr_acc  = 100.0 * tr_correct / tr_total
         lr_now  = optimizer.param_groups[0]['lr']
-        # Legacy line: matches v2/v4-baseline format so old regex still parses.
         print(f"Epoch {epoch+1:3d}/{num_epochs} | LR {lr_now:.2e} | "
               f"Train {tr_loss/len(train_loader):.4f}/{tr_acc:.1f}% | "
               f"Val Top-1 {live_top1:.1f}% Top-5 {live_top5:.1f}%")
-        # Extra ablation lines.
         if live_tta_top1 is not None:
             print(f"  Live+TTA   Top-1 {live_tta_top1:.1f}% Top-5 {live_tta_top5:.1f}%")
         if ema_top1 is not None:
@@ -573,7 +515,6 @@ def train(features_dir=None, num_epochs=NUM_EPOCHS,
         if ema_tta_top1 is not None:
             print(f"  EMA+TTA    Top-1 {ema_tta_top1:.1f}% Top-5 {ema_tta_top5:.1f}%")
 
-        # Best-checkpoint metric: prefer EMA+TTA when available, else fall through.
         score = ema_tta_top1 if ema_tta_top1 is not None \
                 else (ema_top1 if ema_top1 is not None
                       else (live_tta_top1 if live_tta_top1 is not None else live_top1))
@@ -592,11 +533,8 @@ def train(features_dir=None, num_epochs=NUM_EPOCHS,
 
         if score > best_acc:
             best_acc = score
-            # Save the EMA module if we have it (it's the eval-time weights);
-            # otherwise save the live model.
             torch.save((ema.module if ema is not None else model).state_dict(), model_path)
             print(f"  --> New best (selection metric): {best_acc:.1f}%")
-
 
 if __name__ == "__main__":
     train()

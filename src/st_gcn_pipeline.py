@@ -33,7 +33,6 @@ FLIP_PAIRS = [
     (23, 24), (25, 26), (27, 28), (29, 30), (31, 32),
 ]
 
-
 def normalize_skeleton(data: np.ndarray) -> np.ndarray:
     data = data.copy()
     hip = (data[:, 23, :2] + data[:, 24, :2]) / 2
@@ -43,14 +42,12 @@ def normalize_skeleton(data: np.ndarray) -> np.ndarray:
         data[:, :, :2] /= scale
     return data
 
-
 def add_motion_features(data: np.ndarray) -> np.ndarray:
     vel = np.zeros_like(data[:, :, :2])
     vel[1:] = data[1:, :, :2] - data[:-1, :, :2]
     acc = np.zeros_like(vel)
     acc[1:] = vel[1:] - vel[:-1]
     return np.concatenate([data, vel, acc], axis=2)
-
 
 def temporal_sample(data: np.ndarray, num_frames: int, augment: bool) -> np.ndarray:
     T = data.shape[0]
@@ -62,7 +59,6 @@ def temporal_sample(data: np.ndarray, num_frames: int, augment: bool) -> np.ndar
         return data[idx]
     pad = np.repeat(data[-1:], num_frames - T, axis=0)
     return np.concatenate([data, pad], axis=0)
-
 
 def augment_skeleton(data: np.ndarray) -> np.ndarray:
     data = data.copy()
@@ -78,7 +74,6 @@ def augment_skeleton(data: np.ndarray) -> np.ndarray:
     noise[:, :, 2] = 0
     data += noise * 0.03
     return data
-
 
 class HAA500SkeletonDataset(Dataset):
     def __init__(self, split_dir, class_to_idx=None, max_frames=MAX_FRAMES, augment=False):
@@ -111,7 +106,6 @@ class HAA500SkeletonDataset(Dataset):
         x = np.expand_dims(x, axis=-1)
         return torch.from_numpy(x), torch.tensor(label, dtype=torch.long)
 
-
 class Graph:
     def __init__(self):
         self.num_node = 33
@@ -133,7 +127,6 @@ class Graph:
         A = np.diag(d) @ A @ np.diag(d)
         return torch.tensor(A, dtype=torch.float32).unsqueeze(0)
 
-
 class GraphConv(nn.Module):
     def __init__(self, in_channels, out_channels, A):
         super().__init__()
@@ -143,7 +136,6 @@ class GraphConv(nn.Module):
 
     def forward(self, x):
         return torch.einsum('nctv,vw->nctw', self.conv(x), self.A_fixed + self.A_learn)
-
 
 class STGCNBlock(nn.Module):
     def __init__(self, in_ch, out_ch, A, stride=1, residual=True,
@@ -175,7 +167,6 @@ class STGCNBlock(nn.Module):
                 return self.relu(res) if not isinstance(res, int) else x
         out = self.drop(self.bn2(self.tcn(self.relu(self.bn1(self.gcn(x))))))
         return self.relu(out + res)
-
 
 class STGCN(nn.Module):
     def __init__(self, num_classes=500, in_channels=3, dropout=DROPOUT,
@@ -211,16 +202,13 @@ class STGCN(nn.Module):
         x = F.adaptive_avg_pool2d(x, 1).view(N, M, -1).mean(dim=1)
         return self.fc(x)
 
-
 def mixup_data(x, y, alpha=MIXUP_ALPHA):
     lam = np.random.beta(alpha, alpha) if alpha > 0 else 1.0
     idx = torch.randperm(x.size(0), device=x.device)
     return lam * x + (1 - lam) * x[idx], y, y[idx], lam
 
-
 def mixup_loss(criterion, pred, y_a, y_b, lam):
     return lam * criterion(pred, y_a) + (1 - lam) * criterion(pred, y_b)
-
 
 def train():
     device  = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -325,7 +313,6 @@ def train():
             best_val_acc = top1
             torch.save(model.state_dict(), MODEL_SAVE_PATH)
             print(f"  --> New best: {best_val_acc:.1f}%  (saved)")
-
 
 if __name__ == "__main__":
     train()

@@ -1,17 +1,3 @@
-"""Per-class accuracy diagnostic for v4 (EMA+TTA checkpoint).
-
-Loads best_stgcn_v4_emattta.pth, runs inference on val + test combined (6 samples
-per class instead of 3 → less noisy ranking), and reports:
-
-  - Overall Top-1 / Top-5
-  - Distribution of per-class accuracy
-  - Bottom-N classes (worst performers) with their top confusion target
-  - Top-N classes (best performers)
-  - Full CSV at per_class_accuracy.csv
-
-Designed to surface systematic failure modes (e.g. two-person classes that
-MediaPipe's num_poses=1 extraction handles poorly).
-"""
 import argparse
 import csv
 import sys
@@ -24,7 +10,6 @@ from torch.utils.data import DataLoader
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -46,8 +31,6 @@ def main():
     mod = importlib.import_module(f"st_gcn_{args.model}")
 
     if args.checkpoint is None:
-        # v4's saved best is named best_stgcn_v4_emattta.pth (from run_v4_ema_tta.py)
-        # v5's will be best_stgcn_v5.pth (saved by v5's train()) or _emattta variant.
         candidates = [
             ROOT / f"best_stgcn_{args.model}_emattta.pth",
             ROOT / f"best_stgcn_{args.model}.pth",
@@ -61,7 +44,6 @@ def main():
     print(f"Model module: st_gcn_{args.model}")
     print(f"Checkpoint: {args.checkpoint}")
 
-    # Build class_to_idx from the training split so val/test indexing matches training.
     train_ds = mod.HAA500Dataset("train", augment=False)
     class_to_idx = train_ds.class_to_idx
     idx_to_class = {v: k for k, v in class_to_idx.items()}
@@ -75,7 +57,6 @@ def main():
         eval_datasets.append((s, ds))
         print(f"  {s}: {len(ds)} samples")
 
-    # Load EMA model
     model = mod.ThreeStreamSTGCN(num_classes=500).to(device)
     state = torch.load(args.checkpoint, map_location=device, weights_only=False)
     model.load_state_dict(state)
@@ -85,8 +66,7 @@ def main():
     use_tta = not args.no_tta
     print(f"TTA: {'ON (horizontal flip)' if use_tta else 'OFF'}")
 
-    # Inference on selected splits
-    records = []  # list of (true_idx, top1_idx, top5_idxs)
+    records = []
     for split_name, ds in eval_datasets:
         loader = DataLoader(ds, batch_size=32, shuffle=False, num_workers=4,
                             pin_memory=True, persistent_workers=False)
@@ -119,7 +99,6 @@ def main():
     print(f"  Top-1: {overall_t1:.2f}%")
     print(f"  Top-5: {overall_t5:.2f}%")
 
-    # Per-class stats
     per_class = defaultdict(lambda: {"t1": 0, "t5": 0, "n": 0,
                                       "confusions": defaultdict(int)})
     for true, pred1, top5 in records:
@@ -148,8 +127,7 @@ def main():
             "top_confusions": top_confusions,
         })
 
-    # Distribution
-    bins = [0, 16.7, 33.4, 50, 66.7, 83.4, 100.0]  # 0/3, 1/6, 2/6, 3/6, 4/6, 5/6, 6/6
+    bins = [0, 16.7, 33.4, 50, 66.7, 83.4, 100.0]
     bin_labels = ["0%", "<33%", "<50%", "<67%", "<84%", "<100%", "100%"]
     counts = [0] * len(bin_labels)
     for r in rows:
@@ -180,7 +158,6 @@ def main():
     for r in rows[-args.top:][::-1]:
         print(f"{r['class']:<35} {r['top1_acc']:>4.0f}% {r['top5_acc']:>4.0f}% {r['samples']:>3}")
 
-    # Heuristic: flag likely two-person classes by name keywords.
     multi_keywords = [
         "shake_hands", "shaking", "hug", "kiss", "fight", "wrestle",
         "boxing", "fencing", "martial", "judo", "karate", "kung_fu",
@@ -209,7 +186,6 @@ def main():
         for r in sorted(multi_rows, key=lambda r: r["top1_acc"]):
             print(f"    {r['class']:<35} top1={r['top1_acc']:>4.0f}%  top5={r['top5_acc']:>4.0f}%  {r['top_confusions']}")
 
-    # CSV
     csv_path = Path(args.csv)
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
@@ -217,7 +193,6 @@ def main():
         for r in rows:
             w.writerow(r)
     print(f"\nFull per-class report: {csv_path}")
-
 
 if __name__ == "__main__":
     main()

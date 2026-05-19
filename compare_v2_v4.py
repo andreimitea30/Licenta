@@ -1,9 +1,3 @@
-"""Compare v2 (2-stream) vs v4 (3-stream: joint + bone + motion) head-to-head.
-
-Each model trains from scratch with the same seed and runs to args.epochs.
-Per-model output streams to its own log file so a crash mid-run preserves what
-already finished.
-"""
 import argparse
 import re
 import sys
@@ -22,13 +16,11 @@ EPOCH_RE = re.compile(
     r"Val\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%"
 )
 
-
 def set_seed(seed: int) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-
 
 class Tee:
     def __init__(self, *streams): self.streams = streams
@@ -37,7 +29,6 @@ class Tee:
             st.write(s); st.flush()
     def flush(self):
         for st in self.streams: st.flush()
-
 
 def parse_log(path: Path):
     rows = []
@@ -50,7 +41,6 @@ def parse_log(path: Path):
                      "val_top1": float(m.group(5)),
                      "val_top5": float(m.group(6))})
     return rows
-
 
 def run_one(label, train_fn, num_epochs, ckpt, best, seed, log_path):
     for p in (ckpt, best):
@@ -68,7 +58,6 @@ def run_one(label, train_fn, num_epochs, ckpt, best, seed, log_path):
             traceback.print_exc(file=sys.stdout)
         finally:
             sys.stdout = real_stdout
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -132,7 +121,6 @@ def main():
         ba = max(v2_rows, key=lambda r: r['val_top1'])['val_top1']
         bb = max(v4_rows, key=lambda r: r['val_top1'])['val_top1']
         print(f"Best-Top-1 deltas    (v4 - v2): {bb - ba:+.2f}pp")
-
 
 if __name__ == "__main__":
     main()

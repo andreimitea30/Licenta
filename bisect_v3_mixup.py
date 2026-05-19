@@ -1,8 +1,3 @@
-"""Bisect: run v3 with MIXUP_ALPHA=0.3 for the same epochs/seed as the prior compare run.
-
-We already have v2 and v3-no-mixup epoch logs from compare_v2.log / compare_v3.log;
-this script just adds the third leg (v3 + mixup) so we can read all three side-by-side.
-"""
 import argparse
 import re
 import sys
@@ -21,13 +16,11 @@ EPOCH_RE = re.compile(
     r"Val\s+Top-1\s+([\d.]+)%\s+Top-5\s+([\d.]+)%"
 )
 
-
 def set_seed(seed: int) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-
 
 class Tee:
     def __init__(self, *streams):
@@ -38,7 +31,6 @@ class Tee:
     def flush(self):
         for st in self.streams:
             st.flush()
-
 
 def parse_log(path: Path):
     rows = []
@@ -53,7 +45,6 @@ def parse_log(path: Path):
             "val_top5": float(m.group(6)),
         })
     return rows
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -114,7 +105,6 @@ def main():
         b, c = v3_no[-1], v3_mx[-1]
         print(f"Final-epoch v3+mixup vs v3 no-mixup: Top-1 {c['val_top1']-b['val_top1']:+.2f}pp, "
               f"Top-5 {c['val_top5']-b['val_top5']:+.2f}pp")
-
 
 if __name__ == "__main__":
     main()
