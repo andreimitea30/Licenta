@@ -23,5 +23,7 @@ haa500_eda_report.png
 
 thesis/
 
+CLAUDE.md
+
 __pycache__/
 *.pyc
