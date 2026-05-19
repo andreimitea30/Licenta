@@ -6,6 +6,7 @@ venv_linux/
 haa500_v1_1/
 extracted_skeletons/
 extracted_skeletons_world/
+extracted_skeletons_holistic/
 splits/
 
 *.pth

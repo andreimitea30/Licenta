@@ -1,0 +1,501 @@
+class,idx,top1_acc,top5_acc,samples,top_conf_1,top_conf_1_count,top_confusions
+basketball_dribble,36,16.666666666666668,33.333333333333336,6,floss_dance,2,"floss_dance(2), battle-rope_wave(1), ride_bike(1)"
+curling_sweep,117,16.666666666666668,66.66666666666667,6,rescue_breathing,2,"rescue_breathing(2), chainsaw_tree(2), volleyball_pass(1)"
+gas_pumping_to_car,182,16.666666666666668,66.66666666666667,6,bowing_waist,1,"bowing_waist(1), jack_up_car(1), shaving_beard(1)"
+hookah,217,16.666666666666668,66.66666666666667,6,play_clarinet,1,"play_clarinet(1), play_grandpiano(1), eating_ice_cream(1)"
+play_leaf-flute,284,16.666666666666668,83.33333333333333,6,play_ piccolo,1,"play_ piccolo(1), play_noseflute(1), whistle_two_hands(1)"
+play_tambourine,299,16.666666666666668,83.33333333333333,6,talking_on_phone,1,"talking_on_phone(1), chainsaw_tree(1), blowing_gum(1)"
+play_ukulele,305,16.666666666666668,83.33333333333333,6,play_saxophone,2,"play_saxophone(2), spinning_basketball(1), shake_cocktail(1)"
+blowdrying_hair,57,33.333333333333336,33.333333333333336,6,play_cornett,1,"play_cornett(1), smoking_exhale(1), play_ otamatone(1)"
+bmx_riding,65,33.333333333333336,33.333333333333336,6,skydiving,1,"skydiving(1), baseball_catch_flyball(1), grass_skiing(1)"
+cleaning_sweeping,97,33.333333333333336,33.333333333333336,6,walking_with_crutches,1,"walking_with_crutches(1), spraying_wall(1), play_hulahoop(1)"
+climb_icecliff,101,33.333333333333336,33.333333333333336,6,trapeze_interacting,1,"trapeze_interacting(1), using_lawn_mower_riding_type(1), walking_with_crutches(1)"
+folding_blanket,170,33.333333333333336,33.333333333333336,6,cleaning_mirror,1,"cleaning_mirror(1), archery(1), flamethrower(1)"
+hand_in_hand,204,33.333333333333336,33.333333333333336,6,taichi_fan,1,"taichi_fan(1), hold_baby(1), rock_balancing(1)"
+kiss,240,33.333333333333336,33.333333333333336,6,spitting_on_face,2,"spitting_on_face(2), play_cymbals(1), milking(1)"
+play_melodic,287,33.333333333333336,33.333333333333336,6,play_sheng,2,"play_sheng(2), playing_rubiks_cube(1), chewing_gum(1)"
+ski_backflip,375,33.333333333333336,33.333333333333336,6,equestrian_jump,2,"equestrian_jump(2), skydiving(1), climb_icecliff(1)"
+snowboard_jump,389,33.333333333333336,33.333333333333336,6,horizontalbar_land,2,"horizontalbar_land(2), skydiving(1), equestrian_jump(1)"
+walking_on_stilts,467,33.333333333333336,33.333333333333336,6,ski_jump_land,1,"ski_jump_land(1), segway(1), using_metal_detector(1)"
+bike_fall,54,33.333333333333336,50.0,6,blow_gun,1,"blow_gun(1), soccer_save(1), blowing_leaf(1)"
+bmx_jumping,64,33.333333333333336,50.0,6,floor_spin,1,"floor_spin(1), jetski(1), backward_roll(1)"
+brushing_floor,74,33.333333333333336,50.0,6,using_metal_detector,1,"using_metal_detector(1), ride_scooter(1), using_lawn_mower(1)"
+climbing_rock,105,33.333333333333336,50.0,6,grass_skiing,2,"grass_skiing(2), pottery_wheel(1), windsurfing(1)"
+closing_door,108,33.333333333333336,50.0,6,dog_walking,1,"dog_walking(1), hand-drill_firemaking_drill_with_bow(1), pancake_flip(1)"
+cutting_onion,118,33.333333333333336,50.0,6,play_bangu,1,"play_bangu(1), washing_dishes(1), chopping_meat(1)"
+decorating_snowman,121,33.333333333333336,50.0,6,play_gong,1,"play_gong(1), flamethrower(1), ice_scuplting(1)"
+dog_walking,131,33.333333333333336,50.0,6,blowing_leaf,1,"blowing_leaf(1), runway_walk(1), roller-skating_backward(1)"
+drinking_with_cup,133,33.333333333333336,50.0,6,play_recorder,1,"play_recorder(1), eat_burger(1), brushing_teeth(1)"
+fire_breathing,158,33.333333333333336,50.0,6,play_gong,1,"play_gong(1), push_wheelchair(1), luge(1)"
+fire_extinguisher,160,33.333333333333336,50.0,6,handshake_dog,1,"handshake_dog(1), chainsaw_tree(1), luge(1)"
+flying_kite,169,33.333333333333336,50.0,6,play_gong,1,"play_gong(1), slingshot(1), water_skiing(1)"
+ironing_clothes,229,33.333333333333336,50.0,6,chopping_meat,1,"chopping_meat(1), sprint_kneel(1), hand-drill_firemaking_drill_with_bow(1)"
+paragliding,254,33.333333333333336,50.0,6,play_cello,1,"play_cello(1), blow_gun(1), snowboard_slide(1)"
+peeling_banana,255,33.333333333333336,50.0,6,knitting,1,"knitting(1), play_suona(1), basketball_pass(1)"
+playing_snare_drum,317,33.333333333333336,50.0,6,walking_on_stilts,1,"walking_on_stilts(1), play_sitar(1), hammering_nail(1)"
+riding_elephant,343,33.333333333333336,50.0,6,blow_gun,1,"blow_gun(1), curling_sweep(1), ski_frontflip(1)"
+rock_paper_scissors,346,33.333333333333336,50.0,6,badminton_serve,1,"badminton_serve(1), watering_plants(1), basketball_shoot(1)"
+sandboarding_forward,356,33.333333333333336,50.0,6,skydiving,1,"skydiving(1), walking_with_crutches(1), volleyball_underhand(1)"
+shoe_shining,363,33.333333333333336,50.0,6,washing_clothes,1,"washing_clothes(1), spitting_on_face(1), add_new_car_tire(1)"
+sprint_run,406,33.333333333333336,50.0,6,skydiving,1,"skydiving(1), ski_jump_slide(1), tire_sled(1)"
+swimming_butterfly_stroke,417,33.333333333333336,50.0,6,skydiving,1,"skydiving(1), luge(1), swimming_freestyle(1)"
+three_legged_race,435,33.333333333333336,50.0,6,walking_on_stilts,1,"walking_on_stilts(1), badminton_serve(1), cross_country_ski_slide(1)"
+using_spinning_wheel,460,33.333333333333336,50.0,6,play_grandpiano,1,"play_grandpiano(1), crawling(1), playing_rubiks_cube(1)"
+washing_clothes,472,33.333333333333336,50.0,6,shoe_shining,1,"shoe_shining(1), dj(1), washing_dishes(1)"
+yawning,487,33.333333333333336,50.0,6,blowing_gum,1,"blowing_gum(1), kiss(1), hanging_clothes(1)"
+air_drumming,5,33.333333333333336,66.66666666666667,6,play_thereminvox,1,"play_thereminvox(1), speed_stack(1), play_yangqin(1)"
+air_guitar,6,33.333333333333336,66.66666666666667,6,hailing_taxi,1,"hailing_taxi(1), basketball_pass(1), taekwondo_middle_block(1)"
+air_hocky,7,33.333333333333336,66.66666666666667,6,washing_dishes,1,"washing_dishes(1), play_xylophone(1), playing_taiko_drum(1)"
+bandaging,27,33.333333333333336,66.66666666666667,6,watering_plants,1,"watering_plants(1), pancake_flip(1), play_sitar(1)"
+chalkboard,91,33.333333333333336,66.66666666666667,6,brushing_floor,1,"brushing_floor(1), hailing_taxi(1), wall_paint_brush(1)"
+cleaning_mirror,95,33.333333333333336,66.66666666666667,6,wall_paint_brush,1,"wall_paint_brush(1), spitting_on_face(1), hailing_taxi(1)"
+crossbow_shoot,114,33.333333333333336,66.66666666666667,6,fire_extinguisher,1,"fire_extinguisher(1), play_diabolo(1), shooting_handgun(1)"
+curling_follow,115,33.333333333333336,66.66666666666667,6,blowing_leaf,1,"blowing_leaf(1), hopscotch_skip(1), decorating_snowman(1)"
+drinking_with_straw,134,33.333333333333336,66.66666666666667,6,play_hulusi,1,"play_hulusi(1), rescue_breathing(1), playing_rubiks_cube(1)"
+folding_clothes,171,33.333333333333336,66.66666666666667,6,shoe_shining,1,"shoe_shining(1), air_hocky(1), play_bagpipes(1)"
+hammering_nail,200,33.333333333333336,66.66666666666667,6,flying_kite,1,"flying_kite(1), building_snowman(1), wall_paint_brush(1)"
+play_harp,279,33.333333333333336,66.66666666666667,6,using_typewriter,1,"using_typewriter(1), fire_extinguisher(1), bandaging(1)"
+play_trumpet,304,33.333333333333336,66.66666666666667,6,play_suona,1,"play_suona(1), blowing_gum(1), taking_photo_camera(1)"
+play_violin,307,33.333333333333336,66.66666666666667,6,play_trombone,1,"play_trombone(1), play_gong(1), play_erhu(1)"
+rock_balancing,345,33.333333333333336,66.66666666666667,6,playing_conga_drum,1,"playing_conga_drum(1), grass_skiing(1), play_yangqin(1)"
+roller-skating_backward,347,33.333333333333336,66.66666666666667,6,tight-rope_walking,1,"tight-rope_walking(1), walking_with_walker(1), using_lawn_mower(1)"
+taking_selfie,428,33.333333333333336,66.66666666666667,6,drinking_with_cup,1,"drinking_with_cup(1), read_newspaper(1), haircut_scissor(1)"
+throw_paper-plane,437,33.333333333333336,66.66666666666667,6,taekwondo_low_block,1,"taekwondo_low_block(1), spitting_on_face(1), frisbee_throw(1)"
+unicycle_ride,454,33.333333333333336,66.66666666666667,6,using_lawn_mower,1,"using_lawn_mower(1), riding_elephant(1), taichi_fan(1)"
+using_string_trimmer,461,33.333333333333336,66.66666666666667,6,skydiving,1,"skydiving(1), brushing_floor(1), bowing_waist(1)"
+bending_back,53,33.333333333333336,83.33333333333333,6,forward_fold,2,"forward_fold(2), yoga_pigeon(1), tennis_serve(1)"
+hopscotch_spin,220,33.333333333333336,83.33333333333333,6,play_gong,1,"play_gong(1), using_scythe(1), blowing_leaf(1)"
+play_thereminvox,300,33.333333333333336,83.33333333333333,6,play_cornett,1,"play_cornett(1), conducting(1), blowing_glass(1)"
+rescue_breathing,338,33.333333333333336,83.33333333333333,6,chopping_meat,1,"chopping_meat(1), eating_oyster(1), play_grandpiano(1)"
+screw_car_tire,357,33.333333333333336,83.33333333333333,6,play_grandpiano,1,"play_grandpiano(1), handshake_dog(1), pottery_wheel(1)"
+wall_paint_roller,471,33.333333333333336,100.0,6,flying_kite,1,"flying_kite(1), play_gong(1), wall_paint_brush(1)"
+arm_wrestling,13,50.0,50.0,6,drinking_with_cup,1,"drinking_with_cup(1), using_spinning_wheel(1), play_gong(1)"
+atlatl_throw,14,50.0,50.0,6,axe_throwing,1,"axe_throwing(1), volleyball_overhand(1), billiard_hit(1)"
+badminton_overswing,18,50.0,50.0,6,volleyball_overhand,1,"volleyball_overhand(1), baseball_catch_flyball(1), gym_pull(1)"
+balancebeam_walk,25,50.0,50.0,6,frisbee_throw,1,"frisbee_throw(1), three_legged_race(1), ride_scooter(1)"
+billiard_hit,55,50.0,50.0,6,building_snowman,1,"building_snowman(1), face-changing_opera(1), luge(1)"
+blowing_glass,60,50.0,50.0,6,pottery_wheel,1,"pottery_wheel(1), burping(1), eating_ice_cream(1)"
+breakdancing_support,73,50.0,50.0,6,skydiving,1,"skydiving(1), unevenbar_flip(1), piggyback_ride(1)"
+brushing_hair,75,50.0,50.0,6,play_suona,1,"play_suona(1), play_triangle(1), frisbee_throw(1)"
+calfrope_rope,81,50.0,50.0,6,figure_skate_donut_spin,1,"figure_skate_donut_spin(1), hammer_throw(1), chopping_wood(1)"
+card_throw,85,50.0,50.0,6,pancake_flip,1,"pancake_flip(1), frisbee_catch(1), football_throw(1)"
+chopping_meat,93,50.0,50.0,6,blowing_gum,1,"blowing_gum(1), fist_bump(1), sword_swallowing(1)"
+chopping_wood,94,50.0,50.0,6,guitar_smashing,1,"guitar_smashing(1), sledgehammer_strike_down(1), chainsaw_tree(1)"
+cleaning_mopping,96,50.0,50.0,6,walking_on_stilts,1,"walking_on_stilts(1), curling_follow(1), base_jumping(1)"
+cleaning_windows,99,50.0,50.0,6,swimming_freestyle,1,"swimming_freestyle(1), spraying_wall(1), gas_pumping_to_car(1)"
+climbing_tree,107,50.0,50.0,6,climbing_rock,1,"climbing_rock(1), skydiving(1), ride_horse(1)"
+dice_shuffle_reveal,122,50.0,50.0,6,washing_dishes,1,"washing_dishes(1), haircut_scissor(1), pizza_dough_toss(1)"
+eat_apple,135,50.0,50.0,6,play_sheng,1,"play_sheng(1), playing_rubiks_cube(1), play_clarinet(1)"
+eating_ice_cream,139,50.0,50.0,6,play_melodic,1,"play_melodic(1), playing_rubiks_cube(1), blowing kisses(1)"
+eating_oyster,140,50.0,50.0,6,brushing_hair,1,"brushing_hair(1), spinning_plate(1), eat_spagetti(1)"
+equestrian_dressage,141,50.0,50.0,6,chainsaw_tree,2,"chainsaw_tree(2), fire_extinguisher(1)"
+fire_dancing_circulating,159,50.0,50.0,6,riding_elephant,1,"riding_elephant(1), volleyball_underhand(1), throw_paper-plane(1)"
+football_catch,172,50.0,50.0,6,pizza_dough_toss,1,"pizza_dough_toss(1), tennis_backhand(1), piggyback_ride(1)"
+football_throw,174,50.0,50.0,6,tennis_backhand,1,"tennis_backhand(1), eating_ice_cream(1), wall_paint_roller(1)"
+frisbee_catch,177,50.0,50.0,6,volleyball_overhand,1,"volleyball_overhand(1), flamethrower(1), badminton_serve(1)"
+ganggangsullae,180,50.0,50.0,6,tug_of_war,1,"tug_of_war(1), speed_stack(1), speedskating_forward(1)"
+grass_skiing,186,50.0,50.0,6,soccer_save,1,"soccer_save(1), ski_backflip(1), cross_country_ski_slide(1)"
+guitar_smashing,188,50.0,50.0,6,chopping_wood,1,"chopping_wood(1), flamethrower(1), badminton_overswing(1)"
+gym_pull,192,50.0,50.0,6,reading_book,1,"reading_book(1), hold_baby(1), pizza_dough_toss(1)"
+handsaw,205,50.0,50.0,6,CPR,1,"CPR(1), yoga_firefly(1), bowing_fullbody(1)"
+hopscotch_pickup,218,50.0,50.0,6,golf_part,2,"golf_part(2), surfing(1)"
+hopscotch_skip,219,50.0,50.0,6,taekwondo_low_block,1,"taekwondo_low_block(1), closing_door(1), card_throw(1)"
+hugging_animal,225,50.0,50.0,6,hugging_human,1,"hugging_human(1), applauding(1), play_jazzdrum(1)"
+ice_scuplting,228,50.0,50.0,6,rock_balancing,1,"rock_balancing(1), blowing_glass(1), rolling_snow(1)"
+kick_open_door,239,50.0,50.0,6,slingshot,1,"slingshot(1), frisbee_throw(1), face_slapping(1)"
+opening_door,252,50.0,50.0,6,pancake_flip,1,"pancake_flip(1), blowing_leaf(1), flamethrower(1)"
+pancake_flip,253,50.0,50.0,6,play_harp,1,"play_harp(1), smoking_exhale(1), shooting_handgun(1)"
+play_gong,274,50.0,50.0,6,play_saxophone,1,"play_saxophone(1), milking(1), card_throw(1)"
+play_recorder,291,50.0,50.0,6,play_clarinet,2,"play_clarinet(2), drinking_with_straw(1)"
+play_triangle,302,50.0,50.0,6,play_accordian,1,"play_accordian(1), play_saxophone(1), spinning_basketball(1)"
+play_yangqin,309,50.0,50.0,6,play_grandpiano,1,"play_grandpiano(1), shoe_shining(1), play_handpan(1)"
+playing_seesaw,316,50.0,50.0,6,fish-hunting_pull,1,"fish-hunting_pull(1), play_timpani(1), stomping_grapes(1)"
+punching_sandbag,326,50.0,50.0,6,playing_nunchucks,1,"playing_nunchucks(1), shake_cocktail(1), cleaning_mopping(1)"
+read_newspaper,335,50.0,50.0,6,play_harp,1,"play_harp(1), blow_gun(1), reading_book(1)"
+ride_bike,339,50.0,50.0,6,ski_jump_midair,1,"ski_jump_midair(1), basketball_jabstep(1), battle-rope_snake(1)"
+ride_horse,340,50.0,50.0,6,dart_throw,1,"dart_throw(1), using_lawn_mower_riding_type(1), skydiving(1)"
+ride_scooter,342,50.0,50.0,6,using_metal_detector,1,"using_metal_detector(1), skateboard_forward(1), closing_door(1)"
+scuba_diving,358,50.0,50.0,6,skydiving,1,"skydiving(1), yoga_locust(1), equestrian_run(1)"
+skateboard_forward,372,50.0,50.0,6,blowing_leaf,2,"blowing_leaf(2), surfing(1)"
+ski_cork,376,50.0,50.0,6,hurdle_jump,1,"hurdle_jump(1), snowboard_slide(1), rolling_snow(1)"
+smoking_inhale,386,50.0,50.0,6,whistle_one_hand,1,"whistle_one_hand(1), haircut_scissor(1), drinking_with_cup(1)"
+soccer_header,392,50.0,50.0,6,squash_forehand,1,"squash_forehand(1), roller-skating_backward(1), billiard_hit(1)"
+soccer_shoot,394,50.0,50.0,6,using_lawn_mower,1,"using_lawn_mower(1), stone_skipping(1), tennis_forehand(1)"
+spraying_wall,404,50.0,50.0,6,wall_paint_brush,1,"wall_paint_brush(1), push_car(1), crossbow_shoot(1)"
+sticking tongue out,410,50.0,50.0,6,spitting_on_face,1,"spitting_on_face(1), whistle_two_hands(1), spinning_basketball(1)"
+tire_sled,441,50.0,50.0,6,push_car,1,"push_car(1), ride_scooter(1), sack_race(1)"
+trampoline,442,50.0,50.0,6,long_jump_jump,1,"long_jump_jump(1), running_on_four(1), floor_spin(1)"
+trapeze_single,444,50.0,50.0,6,unevenbar_cross,1,"unevenbar_cross(1), breakdancing_support(1), canoeing_sprint(1)"
+unevenbar_land,452,50.0,50.0,6,horizontalbar_land,2,"horizontalbar_land(2), billiard_hit(1)"
+using_typewriter,462,50.0,50.0,6,chewing_gum,1,"chewing_gum(1), play_saxophone(1), reading_book(1)"
+walking_with_crutches,468,50.0,50.0,6,walking_with_walker,1,"walking_with_walker(1), hand_in_hand(1), sack_race(1)"
+add_new_car_tire,3,50.0,66.66666666666667,6,jack_up_car,1,"jack_up_car(1), blowing_glass(1), play_gong(1)"
+baseball_run,34,50.0,66.66666666666667,6,football_run,3,football_run(3)
+basketball_hookshot,38,50.0,66.66666666666667,6,basketball_shoot,2,"basketball_shoot(2), basketball_pass(1)"
+beer_pong_throw,50,50.0,66.66666666666667,6,soccer_header,1,"soccer_header(1), opening_door(1), high_five(1)"
+blow_gun,56,50.0,66.66666666666667,6,arm_wrestling,1,"arm_wrestling(1), spinning_plate(1), shooting_shotgun(1)"
+blowing_balloon,59,50.0,66.66666666666667,6,wear_helmet,1,"wear_helmet(1), playing_rubiks_cube(1), smoking_exhale(1)"
+blowing_gum,61,50.0,66.66666666666667,6,taking_photo_camera,1,"taking_photo_camera(1), kiss(1), chewing_gum(1)"
+bowls_throw,69,50.0,66.66666666666667,6,frisbee_catch,1,"frisbee_catch(1), air_hocky(1), baseball_catch_groundball(1)"
+breakdancing_flare,70,50.0,66.66666666666667,6,trapeze_interacting,1,"trapeze_interacting(1), equestrian_run(1), equestrian_jump(1)"
+canoeing_slalom,83,50.0,66.66666666666667,6,snowboard_jump,1,"snowboard_jump(1), fish-hunting_hold(1), swimming_breast_stroke(1)"
+carrying_with_head,86,50.0,66.66666666666667,6,walking_with_walker,1,"walking_with_walker(1), taking_selfie(1), throwing_bouquet(1)"
+chainsaw_log,89,50.0,66.66666666666667,6,chainsaw_tree,1,"chainsaw_tree(1), decorating_snowman(1), fire_extinguisher(1)"
+cleaning_vacumming,98,50.0,66.66666666666667,6,skydiving,1,"skydiving(1), dog_walking(1), washing_clothes(1)"
+conducting,109,50.0,66.66666666666667,6,play_trombone,1,"play_trombone(1), play_cello(1), play_tambourine(1)"
+dice_stack_shuffle,123,50.0,66.66666666666667,6,swimming_freestyle,1,"swimming_freestyle(1), pottery_wheel(1), speed_stack(1)"
+dog_highfive,130,50.0,66.66666666666667,6,frisbee_catch,1,"frisbee_catch(1), baseball_bunt(1), tug_of_war(1)"
+draw_handgun,132,50.0,66.66666666666667,6,shooting_handgun,1,"shooting_handgun(1), hanging_clothes(1), swimming_butterfly_stroke(1)"
+equestrian_jump,142,50.0,66.66666666666667,6,face-changing_opera,1,"face-changing_opera(1), bmx_jumping(1), calfrope_catch(1)"
+face-changing_opera,144,50.0,66.66666666666667,6,opening_door,1,"opening_door(1), pizza_dough_toss(1), dice_shuffle_reveal(1)"
+flipping_bottle,165,50.0,66.66666666666667,6,yoga_lotus,1,"yoga_lotus(1), fist_bump(1), using_metal_detector(1)"
+frisbee_throw,178,50.0,66.66666666666667,6,stone_skipping,2,"stone_skipping(2), badminton_serve(1)"
+hailing_taxi,197,50.0,66.66666666666667,6,spinning_plate,1,"spinning_plate(1), spitting_on_face(1), bowls_throw(1)"
+haircut_scissor,198,50.0,66.66666666666667,6,drinking_with_cup,1,"drinking_with_cup(1), drinking_with_straw(1), brushing_teeth(1)"
+hand-drill_firemaking_blow,201,50.0,66.66666666666667,6,rescue_breathing,1,"rescue_breathing(1), fish-hunting_pull(1), ice_scuplting(1)"
+high_jump_jump,212,50.0,66.66666666666667,6,diving_sneak,1,"diving_sneak(1), pole_vault_jump(1), hopscotch_pickup(1)"
+hold_baby,215,50.0,66.66666666666667,6,spinning_plate,2,"spinning_plate(2), heimlich_maneuver(1)"
+hugging_human,226,50.0,66.66666666666667,6,flipping_bottle,1,"flipping_bottle(1), using_typewriter(1), football_throw(1)"
+knitting,241,50.0,66.66666666666667,6,rolling_snow,1,"rolling_snow(1), play_cornett(1), balloon_animal(1)"
+long_jump_run,246,50.0,66.66666666666667,6,triple_jump_run,1,"triple_jump_run(1), snowboard_slide(1), shuffle_dance(1)"
+luge,247,50.0,66.66666666666667,6,skydiving,2,"skydiving(2), kayaking(1)"
+one_arm_push_up,251,50.0,66.66666666666667,6,yoga_locust,1,"yoga_locust(1), pushup(1), swimming_breast_stroke(1)"
+pizza_dough_toss,259,50.0,66.66666666666667,6,conducting,1,"conducting(1), hold_baby(1), flying_kite(1)"
+play_castanets,266,50.0,66.66666666666667,6,balloon_animal,1,"balloon_animal(1), play_triangle(1), taking_selfie(1)"
+play_cornett,269,50.0,66.66666666666667,6,play_hulusi,1,"play_hulusi(1), using_typewriter(1), milking(1)"
+play_diabolo,271,50.0,66.66666666666667,6,basketball_shoot,1,"basketball_shoot(1), badminton_serve(1), guitar_flip(1)"
+play_jazzdrum,282,50.0,66.66666666666667,6,watering_plants,1,"watering_plants(1), pottery_wheel(1), play_sanxian(1)"
+play_panpipe,290,50.0,66.66666666666667,6,drinking_with_cup,1,"drinking_with_cup(1), play_cornett(1), whistle_two_hands(1)"
+play_suona,298,50.0,66.66666666666667,6,play_recorder,2,"play_recorder(2), play_hulusi(1)"
+play_timpani,301,50.0,66.66666666666667,6,ride_motorcycle,1,"ride_motorcycle(1), play_jazzdrum(1), dj(1)"
+play_yoyo,310,50.0,66.66666666666667,6,segway,1,"segway(1), draw_handgun(1), play_diabolo(1)"
+playing_taiko_drum,319,50.0,66.66666666666667,6,flying_kite,1,"flying_kite(1), hugging_animal(1), closing_door(1)"
+pottery_wheel,323,50.0,66.66666666666667,6,milking,1,"milking(1), hand-drill_firemaking_drill_with_bow(1), taking_photo_camera(1)"
+reading_book,336,50.0,66.66666666666667,6,play_castanets,1,"play_castanets(1), blowing_gum(1), chewing_gum(1)"
+ride_motorcycle,341,50.0,66.66666666666667,6,using_lawn_mower_riding_type,2,"using_lawn_mower_riding_type(2), walking_with_crutches(1)"
+roller-skating_forward,348,50.0,66.66666666666667,6,speedskating_forward,1,"speedskating_forward(1), basketball_dribble(1), using_string_trimmer(1)"
+shaking_head,361,50.0,66.66666666666667,6,yawning,1,"yawning(1), dj(1), blowing_gum(1)"
+shooting_handgun,365,50.0,66.66666666666667,6,skydiving,1,"skydiving(1), slingshot(1), play_grandpiano(1)"
+shoveling_snow,368,50.0,66.66666666666667,6,bowing_waist,1,"bowing_waist(1), golf_part(1), stomping_grapes(1)"
+skateboard_grind,373,50.0,66.66666666666667,6,hand-drill_firemaking_drill_with_bow,1,"hand-drill_firemaking_drill_with_bow(1), surfing(1), playing_taiko_drum(1)"
+snorkeling,387,50.0,66.66666666666667,6,abseiling,1,"abseiling(1), closing_door(1), swimming_breast_stroke(1)"
+snow_angel,388,50.0,66.66666666666667,6,skydiving,2,"skydiving(2), base_jumping(1)"
+soccer_dribble,391,50.0,66.66666666666667,6,baseball_run,1,"baseball_run(1), moonwalk(1), shoot_dance(1)"
+speedskating_forward,398,50.0,66.66666666666667,6,figure_skate_hydroblading,2,"figure_skate_hydroblading(2), grass_skiing(1)"
+squash_backhand,408,50.0,66.66666666666667,6,badminton_serve,1,"badminton_serve(1), frisbee_throw(1), volleyball_underhand(1)"
+swimming_backstroke,415,50.0,66.66666666666667,6,skydiving,1,"skydiving(1), luge(1), shoot_dance(1)"
+swimming_freestyle,418,50.0,66.66666666666667,6,swimming_breast_stroke,1,"swimming_breast_stroke(1), swimming_backstroke(1), chainsaw_log(1)"
+sword_swallowing,420,50.0,66.66666666666667,6,gym_pull,1,"gym_pull(1), clear_snow_off_car(1), taekwondo_high_block(1)"
+taekwondo_punch,425,50.0,66.66666666666667,6,badminton_serve,1,"badminton_serve(1), fire_extinguisher(1), axe_throwing(1)"
+talking_megaphone,429,50.0,66.66666666666667,6,flamethrower,1,"flamethrower(1), crossbow_shoot(1), using_typewriter(1)"
+tap_dancing,431,50.0,66.66666666666667,6,shuffle_dance,2,"shuffle_dance(2), figure_skate_backward(1)"
+underarm_turn,448,50.0,66.66666666666667,6,cast_net,1,"cast_net(1), arm_wave(1), whipping(1)"
+unevenbar_cross,449,50.0,66.66666666666667,6,jetski,1,"jetski(1), diving_jump(1), base_jumping(1)"
+unevenbar_jump,451,50.0,66.66666666666667,6,equestrian_jump,1,"equestrian_jump(1), unevenbar_flip(1), luge(1)"
+using_metal_detector,458,50.0,66.66666666666667,6,flipping_bottle,1,"flipping_bottle(1), cleaning_vacumming(1), using_lawn_mower(1)"
+volleyball_overhand,463,50.0,66.66666666666667,6,gym_pull,1,"gym_pull(1), bowing_waist(1), throw_paper-plane(1)"
+washing_dishes,473,50.0,66.66666666666667,6,hand-drill_firemaking_drill_with_bow,1,"hand-drill_firemaking_drill_with_bow(1), skateboard_grind(1), rock_paper_scissors(1)"
+watering_plants,475,50.0,66.66666666666667,6,play_serpent,1,"play_serpent(1), segway(1), shooting_handgun(1)"
+arm_wave,12,50.0,83.33333333333333,6,carrying_with_head,1,"carrying_with_head(1), whipping(1), drinking_with_cup(1)"
+axe_throwing,15,50.0,83.33333333333333,6,atlatl_throw,1,"atlatl_throw(1), volleyball_overhand(1), sling(1)"
+badminton_underswing,20,50.0,83.33333333333333,6,equestrian_jump,1,"equestrian_jump(1), hopscotch_pickup(1), badminton_overswing(1)"
+balancebeam_rotate,23,50.0,83.33333333333333,6,figure_skate_scratch_spin,1,"figure_skate_scratch_spin(1), shotput_throw(1), hammer_throw(1)"
+baseball_catch_groundball,32,50.0,83.33333333333333,6,squash_forehand,1,"squash_forehand(1), building_snowman(1), throwing_bouquet(1)"
+cast_net,88,50.0,83.33333333333333,6,bowling,1,"bowling(1), volleyball_underhand(1), baseball_swing(1)"
+clear_snow_off_car,100,50.0,83.33333333333333,6,watering_plants,1,"watering_plants(1), flamethrower(1), blowing_leaf(1)"
+climb_stair,104,50.0,83.33333333333333,6,arm_wave,1,"arm_wave(1), moonwalk(1), running_in_place(1)"
+face_slapping,145,50.0,83.33333333333333,6,high_five,1,"high_five(1), axe_throwing(1), grass_skiing(1)"
+flamethrower,164,50.0,83.33333333333333,6,fish-hunting_hold,1,"fish-hunting_hold(1), shooting_handgun(1), playing_rubiks_cube(1)"
+hand-drill_firemaking_drill_with_hand,203,50.0,83.33333333333333,6,building_snowman,2,"building_snowman(2), play_tambourine(1)"
+high_five,211,50.0,83.33333333333333,6,heimlich_maneuver,1,"heimlich_maneuver(1), atlatl_throw(1), volleyball_overhand(1)"
+high_jump_run,213,50.0,83.33333333333333,6,long_jump_run,1,"long_jump_run(1), triple_jump_run(1), softball_pitch(1)"
+play_xylophone,308,50.0,83.33333333333333,6,fire_extinguisher,1,"fire_extinguisher(1), pottery_wheel(1), play_timpani(1)"
+playing_bass_drum,311,50.0,83.33333333333333,6,play_saxophone,2,"play_saxophone(2), sack_race(1)"
+playing_nunchucks,314,50.0,83.33333333333333,6,frisbee_catch,1,"frisbee_catch(1), fire_breathing(1), shoot_dance(1)"
+playing_rubiks_cube,315,50.0,83.33333333333333,6,play_sheng,1,"play_sheng(1), washing_dishes(1), play_tambourine(1)"
+running_on_four,352,50.0,83.33333333333333,6,crawling,1,"crawling(1), calfrope_rope(1), ride_bike(1)"
+shoot_dance,364,50.0,83.33333333333333,6,play_diabolo,1,"play_diabolo(1), hopscotch_spin(1), volleyball_underhand(1)"
+shuffle_dance,369,50.0,83.33333333333333,6,unicycle_ride,1,"unicycle_ride(1), three_legged_race(1), discuss_throw(1)"
+ski_frontflip,377,50.0,83.33333333333333,6,swimming_breast_stroke,1,"swimming_breast_stroke(1), skydiving(1), forward_roll(1)"
+sledgehammer_strike_down,382,50.0,83.33333333333333,6,baseball_catch_catcher,1,"baseball_catch_catcher(1), golf_part(1), battle-rope_power-slam(1)"
+sling,383,50.0,83.33333333333333,6,flamethrower,1,"flamethrower(1), football_throw(1), cast_net(1)"
+snowboard_slide,390,50.0,83.33333333333333,6,unevenbar_land,1,"unevenbar_land(1), equestrian_jump(1), walking_with_crutches(1)"
+spinning_book,400,50.0,83.33333333333333,6,blowing_glass,1,"blowing_glass(1), using_typewriter(1), spinning_basketball(1)"
+tug_of_war,447,50.0,83.33333333333333,6,water_skiing,2,"water_skiing(2), yoga_fish(1)"
+water_skiing,474,50.0,83.33333333333333,6,cast_net,1,"cast_net(1), archery(1), skydiving(1)"
+wear_helmet,477,50.0,83.33333333333333,6,play_suona,1,"play_suona(1), flying_kite(1), wear_face_mask(1)"
+speed_stack,397,50.0,100.0,6,play_jazzdrum,1,"play_jazzdrum(1), pouring_wine(1), playing_conga_drum(1)"
+squash_forehand,409,50.0,100.0,6,tennis_forehand,1,"tennis_forehand(1), swinging_axe_on_a_tree(1), whipping(1)"
+triple_jump_run,446,50.0,100.0,6,long_jump_run,2,"long_jump_run(2), football_run(1)"
+CPR,1,66.66666666666667,66.66666666666667,6,curling_sweep,1,"curling_sweep(1), hand-drill_firemaking_drill_with_bow(1)"
+adjusting_glasses,4,66.66666666666667,66.66666666666667,6,talking_on_phone,1,"talking_on_phone(1), yawning(1)"
+applauding,9,66.66666666666667,66.66666666666667,6,spinning_plate,1,"spinning_plate(1), card_throw(1)"
+balloon_animal,26,66.66666666666667,66.66666666666667,6,hugging_human,1,"hugging_human(1), playing_rubiks_cube(1)"
+base_jumping,28,66.66666666666667,66.66666666666667,6,skydiving,1,"skydiving(1), atlatl_throw(1)"
+basketball_dunk,37,66.66666666666667,66.66666666666667,6,fire_dancing_circulating,1,"fire_dancing_circulating(1), stomping_grapes(1)"
+basketball_shoot,42,66.66666666666667,66.66666666666667,6,high_jump_jump,1,"high_jump_jump(1), play_cymbals(1)"
+brushing_teeth,76,66.66666666666667,66.66666666666667,6,play_triangle,1,"play_triangle(1), eating_ice_cream(1)"
+building_snowman,77,66.66666666666667,66.66666666666667,6,jetski,1,"jetski(1), decorating_snowman(1)"
+calfrope_catch,80,66.66666666666667,66.66666666666667,6,cast_net,1,"cast_net(1), equestrian_jump(1)"
+calfrope_subdue,82,66.66666666666667,66.66666666666667,6,ski_jump_slide,1,"ski_jump_slide(1), speedskating_forward(1)"
+dart_throw,120,66.66666666666667,66.66666666666667,6,frisbee_throw,1,"frisbee_throw(1), heimlich_maneuver(1)"
+diving_jump,126,66.66666666666667,66.66666666666667,6,volleyball_overhand,1,"volleyball_overhand(1), hopscotch_skip(1)"
+dj,129,66.66666666666667,66.66666666666667,6,playing_snare_drum,1,"playing_snare_drum(1), play_timpani(1)"
+falling_off_chair,146,66.66666666666667,66.66666666666667,6,ski_jump_slide,1,"ski_jump_slide(1), fire_dancing_circulating(1)"
+figure_skate_forward,152,66.66666666666667,66.66666666666667,6,soccer_throw,1,"soccer_throw(1), tennis_forehand(1)"
+figure_skate_hydroblading,153,66.66666666666667,66.66666666666667,6,hopscotch_pickup,1,"hopscotch_pickup(1), bowls_throw(1)"
+fist_bump,163,66.66666666666667,66.66666666666667,6,flamethrower,1,"flamethrower(1), hugging_human(1)"
+floor_spin,167,66.66666666666667,66.66666666666667,6,ski_jump_slide,1,"ski_jump_slide(1), balancebeam_spin(1)"
+frog_jump,179,66.66666666666667,66.66666666666667,6,playing_bass_drum,1,"playing_bass_drum(1), using_lawn_mower_riding_type(1)"
+gym_push,193,66.66666666666667,66.66666666666667,6,ice_scuplting,1,"ice_scuplting(1), taking_photo_camera(1)"
+gym_ride,194,66.66666666666667,66.66666666666667,6,fish-hunting_hold,1,"fish-hunting_hold(1), jack_up_car(1)"
+hanging_clothes,208,66.66666666666667,66.66666666666667,6,play_thereminvox,1,"play_thereminvox(1), hailing_taxi(1)"
+headbang,209,66.66666666666667,66.66666666666667,6,smoking_exhale,1,"smoking_exhale(1), rescue_breathing(1)"
+heimlich_maneuver,210,66.66666666666667,66.66666666666667,6,chopping_meat,1,"chopping_meat(1), hold_baby(1)"
+horizontalbar_jump,222,66.66666666666667,66.66666666666667,6,ski_cork,1,"ski_cork(1), unevenbar_cross(1)"
+horizontalbar_spin,224,66.66666666666667,66.66666666666667,6,floor_spin,1,"floor_spin(1), unevenbar_cross(1)"
+jetski,233,66.66666666666667,66.66666666666667,6,dj,1,"dj(1), using_lawn_mower_riding_type(1)"
+kayaking,237,66.66666666666667,66.66666666666667,6,rowing_boat,1,"rowing_boat(1), playing_taiko_drum(1)"
+milking,248,66.66666666666667,66.66666666666667,6,handshake_dog,1,"handshake_dog(1), skydiving(1)"
+moonwalk,249,66.66666666666667,66.66666666666667,6,whipping,1,"whipping(1), tight-rope_walking(1)"
+play_bangu,264,66.66666666666667,66.66666666666667,6,playing_rubiks_cube,1,"playing_rubiks_cube(1), play_tambourine(1)"
+play_cymbals,270,66.66666666666667,66.66666666666667,6,heimlich_maneuver,1,"heimlich_maneuver(1), knitting(1)"
+play_doublebass,272,66.66666666666667,66.66666666666667,6,spinning_plate,1,"spinning_plate(1), play_gong(1)"
+play_maracas,286,66.66666666666667,66.66666666666667,6,watering_plants,1,"watering_plants(1), brushing_hair(1)"
+play_sitar,297,66.66666666666667,66.66666666666667,6,play_thereminvox,1,"play_thereminvox(1), play_lute(1)"
+playing_swing,318,66.66666666666667,66.66666666666667,6,hanging_clothes,1,"hanging_clothes(1), play_jazzdrum(1)"
+plunging_toilet,320,66.66666666666667,66.66666666666667,6,handshake_dog,1,"handshake_dog(1), spitting_on_face(1)"
+sack_race,354,66.66666666666667,66.66666666666667,6,racewalk_walk,1,"racewalk_walk(1), walking_with_walker(1)"
+skydiving,381,66.66666666666667,66.66666666666667,6,play_cello,1,"play_cello(1), luge(1)"
+smoking_exhale,385,66.66666666666667,66.66666666666667,6,burping,1,"burping(1), shaving_beard(1)"
+soccer_save,393,66.66666666666667,66.66666666666667,6,horizontalbar_jump,1,"horizontalbar_jump(1), balancebeam_jump(1)"
+softball_pitch,396,66.66666666666667,66.66666666666667,6,basketball_pass,1,"basketball_pass(1), throw_boomerang(1)"
+stomping_grapes,411,66.66666666666667,66.66666666666667,6,pouring_wine,1,"pouring_wine(1), bowing_waist(1)"
+surfing,414,66.66666666666667,66.66666666666667,6,volleyball_pass,1,"volleyball_pass(1), frisbee_throw(1)"
+swimming_breast_stroke,416,66.66666666666667,66.66666666666667,6,ski_cork,1,"ski_cork(1), chalkboard(1)"
+swinging_axe_on_a_tree,419,66.66666666666667,66.66666666666667,6,grass_skiing,1,"grass_skiing(1), play_gong(1)"
+taekwondo_middle_block,424,66.66666666666667,66.66666666666667,6,card_throw,1,"card_throw(1), beer_pong_throw(1)"
+tennis_backhand,432,66.66666666666667,66.66666666666667,6,frisbee_throw,1,"frisbee_throw(1), squash_backhand(1)"
+throwing_bouquet,438,66.66666666666667,66.66666666666667,6,spinning_plate,1,"spinning_plate(1), closing_door(1)"
+tight-rope_walking,439,66.66666666666667,66.66666666666667,6,skydiving,1,"skydiving(1), hugging_human(1)"
+using_inhaler,455,66.66666666666667,66.66666666666667,6,play_lute,1,"play_lute(1), play_cornett(1)"
+wall_paint_brush,470,66.66666666666667,66.66666666666667,6,spinning_plate,1,"spinning_plate(1), chopping_meat(1)"
+whipping,481,66.66666666666667,66.66666666666667,6,squash_forehand,1,"squash_forehand(1), badminton_serve(1)"
+balancebeam_flip,21,66.66666666666667,83.33333333333333,6,balancebeam_walk,1,"balancebeam_walk(1), shooting_shotgun(1)"
+baseball_bunt,29,66.66666666666667,83.33333333333333,6,badminton_serve,1,"badminton_serve(1), swinging_axe_on_a_tree(1)"
+baseball_catch_catcher,30,66.66666666666667,83.33333333333333,6,spinning_plate,1,"spinning_plate(1), opening_door(1)"
+baseball_catch_flyball,31,66.66666666666667,83.33333333333333,6,baseball_swing,1,"baseball_swing(1), frisbee_catch(1)"
+baseball_pitch,33,66.66666666666667,83.33333333333333,6,javelin_throw,1,"javelin_throw(1), conducting(1)"
+basketball_pass,41,66.66666666666667,83.33333333333333,6,soccer_header,1,"soccer_header(1), closing_door(1)"
+blowing kisses,58,66.66666666666667,83.33333333333333,6,spinning_basketball,1,"spinning_basketball(1), sword_swallowing(1)"
+blowing_nose,63,66.66666666666667,83.33333333333333,6,play_ocarina,1,"play_ocarina(1), whistle_two_hands(1)"
+bowling,68,66.66666666666667,83.33333333333333,6,ski_jump_midair,1,"ski_jump_midair(1), sprint_start(1)"
+crawling,110,66.66666666666667,83.33333333333333,6,rolling_snow,1,"rolling_snow(1), hammering_nail(1)"
+diving_rotate,127,66.66666666666667,83.33333333333333,6,soccer_header,1,"soccer_header(1), backward_roll(1)"
+eating_hotdogs,138,66.66666666666667,83.33333333333333,6,eating_oyster,1,"eating_oyster(1), heimlich_maneuver(1)"
+figure_skate_I_spin,147,66.66666666666667,83.33333333333333,6,figure_skate_bielman_spin,1,"figure_skate_bielman_spin(1), yoga_dancer(1)"
+figure_skate_backward,148,66.66666666666667,83.33333333333333,6,cross_country_ski_slide,1,"cross_country_ski_slide(1), volleyball_underhand(1)"
+figure_skate_scratch_spin,156,66.66666666666667,83.33333333333333,6,basketball_pass,1,"basketball_pass(1), tap_dancing(1)"
+fish-hunting_hold,161,66.66666666666667,83.33333333333333,6,taking_photo_camera,1,"taking_photo_camera(1), fire_extinguisher(1)"
+hammer_throw,199,66.66666666666667,83.33333333333333,6,unevenbar_flip,1,"unevenbar_flip(1), swimming_breast_stroke(1)"
+handshake_dog,206,66.66666666666667,83.33333333333333,6,playing_rubiks_cube,1,"playing_rubiks_cube(1), curling_push(1)"
+high_knees,214,66.66666666666667,83.33333333333333,6,running_in_place,2,running_in_place(2)
+hold_baby_with_wrap,216,66.66666666666667,83.33333333333333,6,gangnam_style_dance,1,"gangnam_style_dance(1), backward_roll(1)"
+horizontalbar_flip,221,66.66666666666667,83.33333333333333,6,skydiving,1,"skydiving(1), unevenbar_flip(1)"
+hurdle_jump,227,66.66666666666667,83.33333333333333,6,soccer_header,1,"soccer_header(1), football_run(1)"
+jack_up_car,230,66.66666666666667,83.33333333333333,6,bandaging,1,"bandaging(1), screw_car_tire(1)"
+jump rope,235,66.66666666666667,83.33333333333333,6,moonwalk,1,"moonwalk(1), gym_run(1)"
+piggyback_ride,257,66.66666666666667,83.33333333333333,6,handshake_dog,1,"handshake_dog(1), shoveling_snow(1)"
+play_ otamatone,260,66.66666666666667,83.33333333333333,6,using_typewriter,1,"using_typewriter(1), play_trumpet(1)"
+play_accordian,262,66.66666666666667,83.33333333333333,6,read_newspaper,1,"read_newspaper(1), hookah(1)"
+play_bagpipes,263,66.66666666666667,83.33333333333333,6,blowing_gum,1,"blowing_gum(1), hold_baby(1)"
+play_guitar,276,66.66666666666667,83.33333333333333,6,play_kendama,1,"play_kendama(1), building_snowman(1)"
+play_handpan,277,66.66666666666667,83.33333333333333,6,yoga_lotus,1,"yoga_lotus(1), playing_conga_drum(1)"
+play_harmonica,278,66.66666666666667,83.33333333333333,6,wear_face_mask,1,"wear_face_mask(1), play_suona(1)"
+play_hulahoop,280,66.66666666666667,83.33333333333333,6,badminton_serve,1,"badminton_serve(1), spinning_basketball(1)"
+play_lute,285,66.66666666666667,83.33333333333333,6,play_sanxian,2,play_sanxian(2)
+play_noseflute,288,66.66666666666667,83.33333333333333,6,smoking_inhale,1,"smoking_inhale(1), eating_oyster(1)"
+play_viola,306,66.66666666666667,83.33333333333333,6,play_melodic,1,"play_melodic(1), stomping_grapes(1)"
+pouring_wine,324,66.66666666666667,83.33333333333333,6,blowdrying_hair,1,"blowdrying_hair(1), play_thereminvox(1)"
+push_wheelchair,329,66.66666666666667,83.33333333333333,6,using_spinning_wheel,1,"using_spinning_wheel(1), playing_cajon_drum(1)"
+push_wheelchair_alone,330,66.66666666666667,83.33333333333333,6,wall_paint_roller,1,"wall_paint_roller(1), stomping_grapes(1)"
+racewalk_walk,334,66.66666666666667,83.33333333333333,6,moonwalk,1,"moonwalk(1), using_lawn_mower(1)"
+rolling_snow,349,66.66666666666667,83.33333333333333,6,ski_jump_slide,1,"ski_jump_slide(1), decorating_snowman(1)"
+salute,355,66.66666666666667,83.33333333333333,6,pancake_flip,1,"pancake_flip(1), applauding(1)"
+segway,359,66.66666666666667,83.33333333333333,6,using_string_trimmer,1,"using_string_trimmer(1), walking_with_walker(1)"
+shaving_beard,362,66.66666666666667,83.33333333333333,6,kiss,1,"kiss(1), drinking_with_cup(1)"
+shooting_shotgun,366,66.66666666666667,83.33333333333333,6,fish-hunting_pull,1,"fish-hunting_pull(1), blowing_glass(1)"
+slingshot,384,66.66666666666667,83.33333333333333,6,archery,1,"archery(1), dart_throw(1)"
+spinning_basketball,399,66.66666666666667,83.33333333333333,6,spinning_plate,2,spinning_plate(2)
+taekwondo_kick,422,66.66666666666667,83.33333333333333,6,shuffle_dance,1,"shuffle_dance(1), punching_sandbag(1)"
+taekwondo_low_block,423,66.66666666666667,83.33333333333333,6,play_diabolo,1,"play_diabolo(1), heimlich_maneuver(1)"
+talking_on_phone,430,66.66666666666667,83.33333333333333,6,blowing_gum,1,"blowing_gum(1), shaking_head(1)"
+tennis_serve,434,66.66666666666667,83.33333333333333,6,volleyball_overhand,1,"volleyball_overhand(1), tennis_backhand(1)"
+throw_boomerang,436,66.66666666666667,83.33333333333333,6,volleyball_overhand,2,volleyball_overhand(2)
+trapeze_interacting,443,66.66666666666667,83.33333333333333,6,sword_swallowing,1,"sword_swallowing(1), swimming_freestyle(1)"
+using_scythe,459,66.66666666666667,83.33333333333333,6,dog_walking,1,"dog_walking(1), curling_follow(1)"
+volleyball_underhand,466,66.66666666666667,83.33333333333333,6,tennis_backhand,1,"tennis_backhand(1), shoveling_snow(1)"
+walking_with_walker,469,66.66666666666667,83.33333333333333,6,push_car,1,"push_car(1), fire_extinguisher(1)"
+windsurfing,484,66.66666666666667,83.33333333333333,6,climbing_rock,1,"climbing_rock(1), climb_icecliff(1)"
+abseiling,2,66.66666666666667,100.0,6,base_jumping,1,"base_jumping(1), curling_follow(1)"
+alligator_wrestling,8,66.66666666666667,100.0,6,play_bangu,1,"play_bangu(1), yoga_updog(1)"
+archery,11,66.66666666666667,100.0,6,hailing_taxi,1,"hailing_taxi(1), play_diabolo(1)"
+baseball_swing,35,66.66666666666667,100.0,6,taichi_fan,1,"taichi_fan(1), soccer_throw(1)"
+battle-rope_jumping-jack,43,66.66666666666667,100.0,6,jumping_jack,1,"jumping_jack(1), battle-rope_rainbow(1)"
+chewing_gum,92,66.66666666666667,100.0,6,burping,2,burping(2)
+climb_ladder,102,66.66666666666667,100.0,6,fire_extinguisher,1,"fire_extinguisher(1), push_car(1)"
+eat_spagetti,137,66.66666666666667,100.0,6,eating_oyster,1,"eating_oyster(1), play_yangqin(1)"
+equestrian_run,143,66.66666666666667,100.0,6,gym_push,1,"gym_push(1), ski_frontflip(1)"
+fish-hunting_pull,162,66.66666666666667,100.0,6,throw_paper-plane,1,"throw_paper-plane(1), fish-hunting_hold(1)"
+neck_side_pull_stretch,250,66.66666666666667,100.0,6,yoga_gate,1,"yoga_gate(1), bowing_fullbody(1)"
+play_clarinet,268,66.66666666666667,100.0,6,play_cornett,1,"play_cornett(1), using_typewriter(1)"
+play_ocarina,289,66.66666666666667,100.0,6,play_recorder,1,"play_recorder(1), play_hulusi(1)"
+play_sanxian,292,66.66666666666667,100.0,6,play_gong,1,"play_gong(1), playing_rubiks_cube(1)"
+play_sheng,296,66.66666666666667,100.0,6,play_saxophone,2,play_saxophone(2)
+pole_vault_run,322,66.66666666666667,100.0,6,baseball_run,1,"baseball_run(1), using_lawn_mower(1)"
+rowing_boat,350,66.66666666666667,100.0,6,wall_paint_roller,1,"wall_paint_roller(1), folding_clothes(1)"
+ski_jump_land,378,66.66666666666667,100.0,6,building_snowman,1,"building_snowman(1), ski_jump_midair(1)"
+soccer_throw,395,66.66666666666667,100.0,6,playing_taiko_drum,1,"playing_taiko_drum(1), volleyball_overhand(1)"
+spinning_plate,401,66.66666666666667,100.0,6,blowing_gum,2,blowing_gum(2)
+split_leap,403,66.66666666666667,100.0,6,badminton_underswing,1,"badminton_underswing(1), snow_angel(1)"
+stone_skipping,412,66.66666666666667,100.0,6,throw_paper-plane,1,"throw_paper-plane(1), frisbee_throw(1)"
+taking_photo_camera,427,66.66666666666667,100.0,6,blow_gun,1,"blow_gun(1), haircut_scissor(1)"
+using_lawn_mower,456,66.66666666666667,100.0,6,fire_extinguisher,1,"fire_extinguisher(1), play_bagpipes(1)"
+using_lawn_mower_riding_type,457,66.66666666666667,100.0,6,grass_skating,1,"grass_skating(1), washing_dishes(1)"
+weightlifting_hang,478,66.66666666666667,100.0,6,throwing_bouquet,1,"throwing_bouquet(1), volleyball_pass(1)"
+whistle_two_hands,483,66.66666666666667,100.0,6,brushing_teeth,1,"brushing_teeth(1), blowing_glass(1)"
+ALS_IceBucket_Challenge,0,83.33333333333333,83.33333333333333,6,play_leaf-flute,1,play_leaf-flute(1)
+applying_cream,10,83.33333333333333,83.33333333333333,6,whistle_one_hand,1,whistle_one_hand(1)
+badminton_serve,19,83.33333333333333,83.33333333333333,6,play_gong,1,play_gong(1)
+balancebeam_spin,24,83.33333333333333,83.33333333333333,6,floor_rotate,1,floor_rotate(1)
+battle-rope_sideplank,47,83.33333333333333,83.33333333333333,6,curling_follow,1,curling_follow(1)
+battle-rope_snake,48,83.33333333333333,83.33333333333333,6,basketball_jabstep,1,basketball_jabstep(1)
+climb_pole,103,83.33333333333333,83.33333333333333,6,figure_skate_sit_spin,1,figure_skate_sit_spin(1)
+curling_push,116,83.33333333333333,83.33333333333333,6,golf_part,1,golf_part(1)
+discuss_throw,125,83.33333333333333,83.33333333333333,6,badminton_overswing,1,badminton_overswing(1)
+eat_burger,136,83.33333333333333,83.33333333333333,6,play_hulusi,1,play_hulusi(1)
+figure_skate_camel_spin,150,83.33333333333333,83.33333333333333,6,cast_net,1,cast_net(1)
+figure_skate_donut_spin,151,83.33333333333333,83.33333333333333,6,tire_sled,1,tire_sled(1)
+figure_skate_jump_spin,155,83.33333333333333,83.33333333333333,6,tennis_forehand,1,tennis_forehand(1)
+floss_dance,168,83.33333333333333,83.33333333333333,6,play_timpani,1,play_timpani(1)
+forward_fold,175,83.33333333333333,83.33333333333333,6,hand-drill_firemaking_drill_with_bow,1,hand-drill_firemaking_drill_with_bow(1)
+forward_roll,176,83.33333333333333,83.33333333333333,6,falling_off_chair,1,falling_off_chair(1)
+grass_skating,185,83.33333333333333,83.33333333333333,6,rock_balancing,1,rock_balancing(1)
+hand-drill_firemaking_drill_with_bow,202,83.33333333333333,83.33333333333333,6,hand-drill_firemaking_blow,1,hand-drill_firemaking_blow(1)
+horizontalbar_land,223,83.33333333333333,83.33333333333333,6,chainsaw_tree,1,chainsaw_tree(1)
+javelin_run,231,83.33333333333333,83.33333333333333,6,water_skiing,1,water_skiing(1)
+juggling_balls,234,83.33333333333333,83.33333333333333,6,pancake_flip,1,pancake_flip(1)
+leg_hold_front,243,83.33333333333333,83.33333333333333,6,archery,1,archery(1)
+long_jump_jump,245,83.33333333333333,83.33333333333333,6,water_skiing,1,water_skiing(1)
+petanque_throw,256,83.33333333333333,83.33333333333333,6,flipping_bottle,1,flipping_bottle(1)
+play_banjo,265,83.33333333333333,83.33333333333333,6,play_sanxian,1,play_sanxian(1)
+play_kendama,283,83.33333333333333,83.33333333333333,6,battle-rope_snake,1,battle-rope_snake(1)
+play_saw,293,83.33333333333333,83.33333333333333,6,playing_cajon_drum,1,playing_cajon_drum(1)
+play_serpent,295,83.33333333333333,83.33333333333333,6,burping,1,burping(1)
+play_trombone,303,83.33333333333333,83.33333333333333,6,play_grandpiano,1,play_grandpiano(1)
+playing_cajon_drum,312,83.33333333333333,83.33333333333333,6,hand-drill_firemaking_drill_with_bow,1,hand-drill_firemaking_drill_with_bow(1)
+remove_car_tire,337,83.33333333333333,83.33333333333333,6,climbing_rock,1,climbing_rock(1)
+riding_mechanical_bull,344,83.33333333333333,83.33333333333333,6,fire_breathing,1,fire_breathing(1)
+skateboard_jump,374,83.33333333333333,83.33333333333333,6,using_string_trimmer,1,using_string_trimmer(1)
+ski_jump_slide,380,83.33333333333333,83.33333333333333,6,speedskating_forward,1,speedskating_forward(1)
+spitting_on_face,402,83.33333333333333,83.33333333333333,6,gas_pumping_to_car,1,gas_pumping_to_car(1)
+styling_hair,413,83.33333333333333,83.33333333333333,6,play_harp,1,play_harp(1)
+taekwondo_high_block,421,83.33333333333333,83.33333333333333,6,taekwondo_middle_block,1,taekwondo_middle_block(1)
+taichi_fan,426,83.33333333333333,83.33333333333333,6,high_five,1,high_five(1)
+tennis_forehand,433,83.33333333333333,83.33333333333333,6,tennis_backhand,1,tennis_backhand(1)
+tire_pull,440,83.33333333333333,83.33333333333333,6,stone_skipping,1,stone_skipping(1)
+volleyball_pass,464,83.33333333333333,83.33333333333333,6,swinging_axe_on_a_tree,1,swinging_axe_on_a_tree(1)
+workout_chest-pull,485,83.33333333333333,83.33333333333333,6,underarm_turn,1,underarm_turn(1)
+yoga_locust,494,83.33333333333333,83.33333333333333,6,neck_side_pull_stretch,1,neck_side_pull_stretch(1)
+balancebeam_jump,22,83.33333333333333,100.0,6,basketball_hookshot,1,basketball_hookshot(1)
+basketball_jabstep,39,83.33333333333333,100.0,6,golf_part,1,golf_part(1)
+basketball_layup,40,83.33333333333333,100.0,6,soccer_header,1,soccer_header(1)
+belly_dancing,51,83.33333333333333,100.0,6,tight-rope_walking,1,tight-rope_walking(1)
+blowing_leaf,62,83.33333333333333,100.0,6,using_metal_detector,1,using_metal_detector(1)
+bowing_waist,67,83.33333333333333,100.0,6,sack_race,1,sack_race(1)
+breakdancing_rotate,72,83.33333333333333,100.0,6,swimming_freestyle,1,swimming_freestyle(1)
+burpee,78,83.33333333333333,100.0,6,battle-rope_rainbow,1,battle-rope_rainbow(1)
+canoeing_sprint,84,83.33333333333333,100.0,6,canoeing_slalom,1,canoeing_slalom(1)
+cartwheeling,87,83.33333333333333,100.0,6,balancebeam_flip,1,balancebeam_flip(1)
+climbing_rope,106,83.33333333333333,100.0,6,push_car,1,push_car(1)
+cross_country_ski_walk,113,83.33333333333333,100.0,6,building_snowman,1,building_snowman(1)
+dabbing,119,83.33333333333333,100.0,6,badminton_serve,1,badminton_serve(1)
+floor_rotate,166,83.33333333333333,100.0,6,leg_split,1,leg_split(1)
+gangnam_style_dance,181,83.33333333333333,100.0,6,fire_dancing_circulating,1,fire_dancing_circulating(1)
+golf_swing,184,83.33333333333333,100.0,6,squash_forehand,1,squash_forehand(1)
+guitar_flip,187,83.33333333333333,100.0,6,taekwondo_low_block,1,taekwondo_low_block(1)
+gym_run,195,83.33333333333333,100.0,6,push_car,1,push_car(1)
+gym_squat,196,83.33333333333333,100.0,6,play_hulusi,1,play_hulusi(1)
+javelin_throw,232,83.33333333333333,100.0,6,baseball_bunt,1,baseball_bunt(1)
+jumping_jack,236,83.33333333333333,100.0,6,battle-rope_jumping-jack,1,battle-rope_jumping-jack(1)
+leg_hold_back,242,83.33333333333333,100.0,6,leg_hold_front,1,leg_hold_front(1)
+leg_split,244,83.33333333333333,100.0,6,bench_dip,1,bench_dip(1)
+play_cello,267,83.33333333333333,100.0,6,play_harmonica,1,play_harmonica(1)
+play_hulusi,281,83.33333333333333,100.0,6,play_recorder,1,play_recorder(1)
+play_saxophone,294,83.33333333333333,100.0,6,play_serpent,1,play_serpent(1)
+pull_ups,325,83.33333333333333,100.0,6,sword_swallowing,1,sword_swallowing(1)
+push_car,328,83.33333333333333,100.0,6,climb_ladder,1,climb_ladder(1)
+pushup,331,83.33333333333333,100.0,6,yoga_updog,1,yoga_updog(1)
+situp,371,83.33333333333333,100.0,6,workout_crunch,1,workout_crunch(1)
+sprint_start,407,83.33333333333333,100.0,6,sprint_kneel,1,sprint_kneel(1)
+triple_jump_jump,445,83.33333333333333,100.0,6,ski_backflip,1,ski_backflip(1)
+unevenbar_flip,450,83.33333333333333,100.0,6,horizontalbar_flip,1,horizontalbar_flip(1)
+unevenbar_spin,453,83.33333333333333,100.0,6,horizontalbar_spin,1,horizontalbar_spin(1)
+whistle_one_hand,482,83.33333333333333,100.0,6,taking_selfie,1,taking_selfie(1)
+yoga_gate,493,83.33333333333333,100.0,6,yoga_pigeon,1,yoga_pigeon(1)
+yoga_lotus,495,83.33333333333333,100.0,6,spitting_on_face,1,spitting_on_face(1)
+yoga_triangle,498,83.33333333333333,100.0,6,forward_fold,1,forward_fold(1)
+backflip,16,100.0,100.0,6,,0,
+backward_roll,17,100.0,100.0,6,,0,
+battle-rope_power-slam,44,100.0,100.0,6,,0,
+battle-rope_rainbow,45,100.0,100.0,6,,0,
+battle-rope_russian-twist,46,100.0,100.0,6,,0,
+battle-rope_wave,49,100.0,100.0,6,,0,
+bench_dip,52,100.0,100.0,6,,0,
+bowing_fullbody,66,100.0,100.0,6,,0,
+breakdancing_flip,71,100.0,100.0,6,,0,
+burping,79,100.0,100.0,6,,0,
+chainsaw_tree,90,100.0,100.0,6,,0,
+cross_body_shoulder_stretch,111,100.0,100.0,6,,0,
+cross_country_ski_slide,112,100.0,100.0,6,,0,
+dips,124,100.0,100.0,6,,0,
+diving_sneak,128,100.0,100.0,6,,0,
+figure_skate_bielman_spin,149,100.0,100.0,6,,0,
+figure_skate_inaBauer,154,100.0,100.0,6,,0,
+figure_skate_sit_spin,157,100.0,100.0,6,,0,
+football_run,173,100.0,100.0,6,,0,
+golf_part,183,100.0,100.0,6,,0,
+gym_lift,189,100.0,100.0,6,,0,
+gym_lunges,190,100.0,100.0,6,,0,
+gym_plank,191,100.0,100.0,6,,0,
+handstand,207,100.0,100.0,6,,0,
+kick_jianzi,238,100.0,100.0,6,,0,
+pirouette,258,100.0,100.0,6,,0,
+play_ piccolo,261,100.0,100.0,6,,0,
+play_erhu,273,100.0,100.0,6,,0,
+play_grandpiano,275,100.0,100.0,6,,0,
+playing_conga_drum,313,100.0,100.0,6,,0,
+pole_vault_jump,321,100.0,100.0,6,,0,
+punching_speedbag,327,100.0,100.0,6,,0,
+putting_scarf_on,332,100.0,100.0,6,,0,
+quadruped_hip-extension,333,100.0,100.0,6,,0,
+running_in_place,351,100.0,100.0,6,,0,
+runway_walk,353,100.0,100.0,6,,0,
+shake_cocktail,360,100.0,100.0,6,,0,
+shotput_throw,367,100.0,100.0,6,,0,
+side_lunge,370,100.0,100.0,6,,0,
+ski_jump_midair,379,100.0,100.0,6,,0,
+sprint_kneel,405,100.0,100.0,6,,0,
+volleyball_set,465,100.0,100.0,6,,0,
+wear_face_mask,476,100.0,100.0,6,,0,
+weightlifting_overhead,479,100.0,100.0,6,,0,
+weightlifting_stand,480,100.0,100.0,6,,0,
+workout_crunch,486,100.0,100.0,6,,0,
+yoga_bridge,488,100.0,100.0,6,,0,
+yoga_cat,489,100.0,100.0,6,,0,
+yoga_dancer,490,100.0,100.0,6,,0,
+yoga_firefly,491,100.0,100.0,6,,0,
+yoga_fish,492,100.0,100.0,6,,0,
+yoga_pigeon,496,100.0,100.0,6,,0,
+yoga_tree,497,100.0,100.0,6,,0,
+yoga_updog,499,100.0,100.0,6,,0,
