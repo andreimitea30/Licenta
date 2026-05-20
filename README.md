@@ -88,17 +88,17 @@ The second model (`st_gcn_v2.py`) made four structural changes:
 
 After the fix, the second run trained cleanly for 150 epochs, reaching **33.7% top-1 / 51.5% top-5** - a +2.2% improvement over the baseline.
 
-### Run 3 - Reviewer-suggested redesign (`st_gcn_v3.py`)
+### Run 3 - Review-suggested redesign (`st_gcn_v3.py`)
 
-After the v2 run a reviewer flagged several concerns: the adjacency-matrix normalisation looked suspicious, dropout 0.5 seemed too high, mixup was conjectured not to help long-term, and the deep-only placement of attention (blocks 8–9) felt backwards - attention should arguably be earlier to capture global structure before convolutions localise it. A v3 was written that tested each of those critiques.
+After the v2 run, several concerns were flagged: the adjacency-matrix normalisation looked suspicious, dropout 0.5 seemed too high, mixup was presumably not helpful long-term, and the deep-only placement of attention (blocks 8–9) felt backwards - attention should arguably be earlier to capture global structure before convolutions localise it. A v3 was written that tested each of those critiques.
 
-The adjacency-matrix concern dissolved on inspection. The expression `np.diag(d) @ A @ np.diag(d)` with `d = A.sum(1)^{-0.5}` is the standard Kipf–Welling symmetric normalisation `D^{-0.5}(A+I)D^{-0.5}`. Because `D` is diagonal, `D^{-0.5}` is its own transpose, so the "missing transpose" the reviewer suspected is mathematically equivalent to the existing code. A one-line citation comment was added and no functional change followed.
+The adjacency-matrix concern dissolved on inspection. Because `D` is diagonal, `D^{-0.5}` is its own transpose, so the "missing transpose" is mathematically equivalent to the existing code.
 
 The other suggestions were implemented as full changes: dropout dropped to 0.3, mixup removed, attention redistributed to blocks `[3, 6, 9]` (one per channel stage rather than concentrated at the end), per-frame augmentation added (independent scale jitter per frame, per-frame Gaussian noise, temporal cutout zeroing 2–8 contiguous frames at 30% probability, joint dropout zeroing 1–3 joints at 30% probability), and a `WeightedRandomSampler` substituted for plain `shuffle=True` to break same-class adjacency in the file system.
 
-At 10 epochs v3 already lagged v2 by ~5pp top-1, despite the train loss falling faster. At 30 epochs the picture was definitive: v2 reached 29.8% top-1 / 51.0% top-5, while v3 reached 22.7% / 42.5%. The train–validation gap, which had been ~15pp for v2, ballooned to ~31pp for v3 - classic insufficient-regularisation overfitting. Removing dropout and mixup simultaneously left the model with too much capacity for the 14-samples-per-class regime; the stronger augmentation acted on the input but couldn't compensate for the regularisation removed from inside the model.
+At 10 epochs v3 already lagged v2 by ~5pp top-1, despite the train loss falling faster. At 30 epochs the picture was definitive: v2 reached 29.8% top-1 / 51.0% top-5, while v3 reached 22.7% / 42.5%. The train–validation gap, which had been ~15pp for v2, ballooned to ~31pp for v3. Removing dropout and mixup simultaneously left the model with too much capacity for the 14-samples-per-class regime; the stronger augmentation acted on the input but couldn't compensate for the regularisation removed from inside the model.
 
-The fix - restore `DROPOUT=0.5` and `MIXUP_ALPHA=0.3` while keeping the architectural and sampler changes - produced v3-hireg: 26.3% top-1 / 46.7% top-5. The overfitting gap closed (12.7pp, slightly better than v2's 14.7pp), but absolute accuracy was still −3.5pp top-1 / −4.3pp top-5 below v2. The reviewer-suggested architectural changes alone were a net regression at this scale.
+The fix - restore `DROPOUT=0.5` and `MIXUP_ALPHA=0.3` while keeping the architectural and sampler changes - produced v3-hireg: 26.3% top-1 / 46.7% top-5. The overfitting gap closed (12.7pp, slightly better than v2's 14.7pp), but absolute accuracy was still −3.5pp top-1 / −4.3pp top-5 below v2.
 
 Two single-axis bisects against v3-hireg isolated the contributions:
 
@@ -115,13 +115,13 @@ Even the best bisect (v2-style augmentation, v2-style attention) stalled at ~28%
 
 ### Run 4 - Three-stream extension (`st_gcn_v4.py`)
 
-Where v3 explored the reviewer's surface critiques, v4 took the obvious next step within base ST-GCN: a third stream. The canonical multi-stream ST-GCN family (Shi et al., 2019, "Two-Stream Adaptive GCN") routinely uses joint, bone, and motion streams, each fed a *specialised* 4-channel feature rather than a concatenated 7-channel mix:
+Where v3 explored the reviewer's surface critiques, v4 took the obvious next step within base ST-GCN: a third stream:
 
 - **Joint stream**: `[x, y, z, visibility]`
 - **Bone stream**: `[bx, by, bz, visibility]` where bone vectors are computed across the 34 anatomical edges
 - **Motion stream**: `[vx, vy, vz, visibility]` where velocities are temporal first differences of positions
 
-Each stream is a separate `SingleStream` network (the same architecture as v2's per-stream backbone). Logits are averaged at fusion time. The per-stream input channel count drops from 7 to 4, leaving total parameters roughly unchanged (~6.7M, distributed across three smaller streams instead of two larger ones). All other v2 choices were inherited verbatim - dropout 0.5, mixup α=0.3, attention on blocks `[8, 9]`, clip-level augmentation, plain `shuffle=True`. The lesson from v3 was clear: do not touch the regularisation recipe.
+Each stream is a separate `SingleStream` network (the same architecture as v2's per-stream backbone). The per-stream input channel count drops from 7 to 4, leaving total parameters roughly unchanged (~6.7M, distributed across three smaller streams instead of two larger ones). All other v2 choices were inherited - dropout 0.5, mixup α=0.3, attention on blocks `[8, 9]`, clip-level augmentation, plain `shuffle=True`. The lesson from v3 was clear: do not touch the regularisation recipe.
 
 Two evaluation-time recipes were added as toggleable defaults:
 
@@ -187,7 +187,7 @@ This diagnostic directly motivated the next step - v5 - and provides the empiric
 
 ### Re-extraction with MediaPipe Holistic
 
-The simplest extension that stays inside "skeleton-based recognition" is to add finger landmarks. MediaPipe provides a separate `HandLandmarker` model (21 landmarks per hand, including the wrist and four landmarks per finger). The legacy combined `Holistic` solution was deprecated in MediaPipe 0.10, so the new extraction (`pose_extraction_holistic.py`) runs `PoseLandmarker` and `HandLandmarker` independently per frame and merges results. Each frame's output becomes a `(75, 4)` array:
+The simplest extension that stays inside "skeleton-based recognition" is to add finger landmarks. MediaPipe provides a separate `HandLandmarker` model (21 landmarks per hand, including the wrist and four landmarks per finger). The extraction script (`pose_extraction_holistic.py`) runs `PoseLandmarker` and `HandLandmarker` independently per frame and merges results. Each frame's output becomes a `(75, 4)` array:
 
 - Indices `0..32`: 33 body landmarks (unchanged from v4 input data, but now in image-space coordinates rather than world coordinates - the hand landmarker only produces image-space output, so the body must match)
 - Indices `33..53`: 21 left-hand landmarks
@@ -195,9 +195,7 @@ The simplest extension that stays inside "skeleton-based recognition" is to add 
 
 Hands are assigned to the left/right slot by MediaPipe's `handedness` classifier (which reports the person's own left/right hand, not a mirror-image convention). When a hand isn't detected in a frame, that slot is filled with zeros and a visibility of 0; when detected, hands get visibility = 1 (the model lacks per-landmark visibility for hands). Body landmarks still use MediaPipe's real visibility score.
 
-A practical concern: the splits CSV files generated under WSL contained Linux absolute paths (`/home/andrei/Licenta/Licenta/haa500_v1_1/...`) which fail on Windows. The extractor includes a path-translation step that strips everything up to `haa500_v1_1/` and rebuilds against the local `ROOT_DIR`.
-
-Extraction speed averaged ~14 videos per minute on CPU MediaPipe (both tasks running per frame). The full 10,000-video re-extraction took ~12 hours wall-clock, completed without errors.
+Extraction speed averaged ~14 videos per minute on CPU MediaPipe (both tasks running per frame). The full 10,000-video re-extraction took ~12 hours.
 
 ### Graph topology for `st_gcn_v5.py`
 
@@ -209,11 +207,11 @@ The model file is structurally identical to v4 - same `ThreeStreamSTGCN` (joint+
 
 The dataset class drops the v2/v4 fallback logic: v5 reads only from `extracted_skeletons_holistic/` because the 33-node and 75-node arrays are incompatible.
 
-Two practical issues surfaced during training setup. First, the larger graph caused GPU memory pressure: at batch size 32 the model occupied 96% of the RTX 4070 Laptop's 8 GB and per-batch time collapsed from ~0.30 s to several seconds, because PyTorch's allocator was thrashing and cuDNN was choosing slower fallback kernels. Halving the batch size to 16 dropped memory to 64% and restored full speed - a ~100× wall-clock recovery from a one-line change. Second, the training budget was reduced from 150 to 100 epochs based on v4's curve: the v4 EMA+TTA peak landed at epoch 63 of 150 with the remaining 87 epochs spent overfitting. Compressing the cosine schedule to 100 epochs covers the same training arc.
+Two practical issues surfaced during training setup. First, the larger graph caused GPU memory pressure: at batch size 32 the model occupied 96% of the RTX 4070 Laptop's 8 GB and per-batch time collapsed from ~0.30 s to several seconds. Halving the batch size to 16 dropped memory to 64% and restored full speed. Second, the training budget was reduced from 150 to 100 epochs based on v4's curve: the v4 EMA+TTA peak landed at epoch 63 of 150 with the remaining 87 epochs spent overfitting. Compressing the cosine schedule to 100 epochs covers the same training arc.
 
 ### Run 5 - body+hands skeleton
 
-v5 was trained with `combined_train=True`: train and val were merged into a single 8,500-sample training pool, with the test split (1,500 samples) reserved for evaluation only. This is the standard ML protocol for a final reported model - val is used during development for checkpoint selection, then the final model trains on train+val and is evaluated once on test. v4's reported numbers used val for evaluation; v5's use test. The two are drawn from the same stratified random split and are statistically equivalent as held-out sets, but they are different physical samples.
+v5 was trained with `combined_train=True`: train and val were merged into a single 8,500-sample training pool, with the test split (1,500 samples) reserved for evaluation only. v4's reported numbers used val for evaluation; v5's use test.
 
 Training reached 100 epochs in two sessions (~3.5 hours of GPU time, with a pause and a resume from the checkpoint - the train loop saves full state every epoch including optimiser momentums, scheduler position, AMP scaler, EMA weights, and best-acc, so resumes pick up exactly where they stopped). Final results on the held-out test split:
 
@@ -271,7 +269,7 @@ These are exactly the categories the diagnostic flagged as failure modes - objec
 
 These are large-amplitude full-body motions where the body skeleton alone is highly distinctive. Adding 42 noisy hand nodes per frame (most often partially detected, often zero-padded when out of view) gave the graph convolution more low-signal nodes to integrate over, diluting the body's discriminative content. The model gained capacity at the cost of focus.
 
-The unified takeaway: **a symmetric body+hands ST-GCN trades off body precision for hand awareness.** The diagnostic's bimodal distribution is preserved but the modes have shifted - hand-mediated classes have moved up, body-only classes have moved down, and the histogram total stays the same. v5 is not a strict improvement over v4; it is a *differently specialised model with a different strength profile*.
+The unified takeaway: **a symmetric body+hands ST-GCN trades off body precision for hand awareness.** The diagnostic's bimodal distribution is preserved but the modes have shifted - hand-mediated classes have moved up, body-only classes have moved down, and the histogram total stays the same. v5 is not a strict improvement over v4; it is a specialised model with different strengths.
 
 ---
 
@@ -279,17 +277,13 @@ The unified takeaway: **a symmetric body+hands ST-GCN trades off body precision 
 
 Across five training runs, three architectural extensions, and two skeleton-extraction pipelines, the test-set top-1 accuracy moved from 31.5% (v1) to 33.7% (v2) to 34.9% (v4 on val) to 33.7% (v5 on test). The total improvement attributable to model and recipe changes is real but modest: roughly +2–3 percentage points, and even that is partly a measurement artifact between val and test as held-out sets.
 
-The per-class diagnostic explains why. About 24% of HAA500 classes are unrecognisable to a skeleton-only model regardless of architecture, and another 40% are recognisable only sometimes. The classes the model gets perfectly right are exactly those defined by whole-body geometry - yoga poses, gym exercises, distinctive sports motions. The classes it never gets right are those defined by what the person is *holding* or *interacting with*. No re-arrangement of the model's internals changes this; the ceiling is set by the input modality.
+About 24% of HAA500 classes are unrecognisable to a skeleton-only model regardless of architecture, and another 40% are recognisable only sometimes. The classes the model gets perfectly right are exactly those defined by whole-body geometry - yoga poses, gym exercises, distinctive sports motions. The classes it never gets right are those defined by what the person is *holding* or *interacting with*.
 
-This makes the natural follow-up work clear:
+Future work ideas:
 
-- **Adding hand landmarks (v5) was the right idea in isolation** but the symmetric fusion architecture diluted body performance. A two-branch architecture that processes body and hands as separate graphs before fusing learned features would likely preserve v4's body-class wins while adding v5's hand-class wins. This is a small architectural change but a meaningful next step within "base ST-GCN".
+- **Adding hand landmarks (v5) was the right idea in isolation**, but a two-branch architecture that processes body and hands as separate graphs before fusing learned features would likely preserve v4's body-class wins while adding v5's hand-class wins.
 
-- **Adding face landmarks** (MediaPipe Face has 478 landmarks) would help eating, smoking, kissing, applying-makeup, and similar face-region classes that the body+hands skeleton still cannot disambiguate. The 478-landmark face mesh is too dense for a vanilla ST-GCN - it would need either part-pooling to ~10–20 keypoints or a hierarchical architecture.
-
-- **Adding any non-skeleton signal** - RGB context, object detection bounding boxes, audio - would break the modality ceiling more directly than any in-modality refinement. Skeleton + RGB fusion typically reaches 65–80% top-1 on HAA500 in the literature, compared to the 33–45% range achievable from skeleton alone.
-
-The empirical contribution of this work is therefore not the absolute accuracy number, but the **per-class diagnostic** that quantifies where skeleton-only recognition succeeds and fails on HAA500. The pattern - bimodal distribution, 64% of classes at or below 33% top-1, failures concentrated in object-mediated actions - gives a precise, actionable target for future modality extensions, and it is the same pattern that holds across v2, v4, and v5. Different architectures within the skeleton-only family redistribute that distribution but do not collapse it.
+- **Adding face landmarks** (MediaPipe Face has 478 landmarks) would help eating, smoking, kissing, applying-makeup, and similar face-region classes that the body+hands skeleton still cannot disambiguate. The 478-landmark face mesh is too dense for a ST-GCN - it would need either part-pooling to ~10–20 keypoints or a hierarchical architecture.
 
 ### Final results summary
 
