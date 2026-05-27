@@ -13,7 +13,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model",      default="v4", choices=["v4", "v5"],
+    ap.add_argument("--model",      default="v4", choices=["v4", "v5", "v6"],
                     help="Which v* module to use (default: v4)")
     ap.add_argument("--checkpoint", default=None,
                     help="Path to checkpoint .pth (default: best_stgcn_<model>_emattta.pth)")
@@ -57,7 +57,11 @@ def main():
         eval_datasets.append((s, ds))
         print(f"  {s}: {len(ds)} samples")
 
-    model = mod.ThreeStreamSTGCN(num_classes=500).to(device)
+    is_v6 = args.model == "v6"
+    if is_v6:
+        model = mod.HierarchicalSTGCN(num_classes=500).to(device)
+    else:
+        model = mod.ThreeStreamSTGCN(num_classes=500).to(device)
     state = torch.load(args.checkpoint, map_location=device, weights_only=False)
     model.load_state_dict(state)
     model.eval()
@@ -71,19 +75,36 @@ def main():
         loader = DataLoader(ds, batch_size=32, shuffle=False, num_workers=4,
                             pin_memory=True, persistent_workers=False)
         with torch.no_grad():
-            for joint, bone, motion, y in loader:
-                joint  = joint.to(device,  non_blocking=True)
-                bone   = bone.to(device,   non_blocking=True)
-                motion = motion.to(device, non_blocking=True)
-                y      = y.to(device,      non_blocking=True)
-                with torch.amp.autocast(device_type=device.type, enabled=device.type == "cuda"):
-                    logits = model(joint, bone, motion)
-                    if use_tta:
-                        j2, b2, m2 = mod._hflip_streams(joint, bone, motion)
-                        logits2 = model(j2, b2, m2)
-                        probs = (logits.softmax(-1) + logits2.softmax(-1)) / 2
-                    else:
-                        probs = logits.softmax(-1)
+            for batch in loader:
+                if is_v6:
+                    body, lhand, rhand, face, y = batch
+                    body  = body.to(device,  non_blocking=True)
+                    lhand = lhand.to(device, non_blocking=True)
+                    rhand = rhand.to(device, non_blocking=True)
+                    face  = face.to(device,  non_blocking=True)
+                    y     = y.to(device,     non_blocking=True)
+                    with torch.amp.autocast(device_type=device.type, enabled=device.type == "cuda"):
+                        logits = model(body, lhand, rhand, face)
+                        if use_tta:
+                            b2, l2, r2, f2 = mod._hflip_parts(body, lhand, rhand, face)
+                            logits2 = model(b2, l2, r2, f2)
+                            probs = (logits.softmax(-1) + logits2.softmax(-1)) / 2
+                        else:
+                            probs = logits.softmax(-1)
+                else:
+                    joint, bone, motion, y = batch
+                    joint  = joint.to(device,  non_blocking=True)
+                    bone   = bone.to(device,   non_blocking=True)
+                    motion = motion.to(device, non_blocking=True)
+                    y      = y.to(device,      non_blocking=True)
+                    with torch.amp.autocast(device_type=device.type, enabled=device.type == "cuda"):
+                        logits = model(joint, bone, motion)
+                        if use_tta:
+                            j2, b2, m2 = mod._hflip_streams(joint, bone, motion)
+                            logits2 = model(j2, b2, m2)
+                            probs = (logits.softmax(-1) + logits2.softmax(-1)) / 2
+                        else:
+                            probs = logits.softmax(-1)
                 top1 = probs.argmax(1)
                 top5 = probs.topk(5, 1).indices
                 for i in range(y.size(0)):

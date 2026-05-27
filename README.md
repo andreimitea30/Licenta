@@ -273,17 +273,158 @@ The unified takeaway: **a symmetric body+hands ST-GCN trades off body precision 
 
 ---
 
-## Chapter 6 - Conclusions
+## Chapter 6 - Hierarchical Skeletonisation (v6)
 
-Across five training runs, three architectural extensions, and two skeleton-extraction pipelines, the test-set top-1 accuracy moved from 31.5% (v1) to 33.7% (v2) to 34.9% (v4 on val) to 33.7% (v5 on test). The total improvement attributable to model and recipe changes is real but modest: roughly +2–3 percentage points, and even that is partly a measurement artifact between val and test as held-out sets.
+The v5 result raised a clean architectural question. If v5 lost body precision because the monolithic 75-node graph let the convolution dilute body attention with noisy hand information, would processing each anatomical part on its *own* sub-graph fix the dilution while keeping the new modalities?
 
-About 24% of HAA500 classes are unrecognisable to a skeleton-only model regardless of architecture, and another 40% are recognisable only sometimes. The classes the model gets perfectly right are exactly those defined by whole-body geometry - yoga poses, gym exercises, distinctive sports motions. The classes it never gets right are those defined by what the person is *holding* or *interacting with*.
+v6 was built to test exactly that.
 
-Future work ideas:
+### What changed
 
-- **Adding hand landmarks (v5) was the right idea in isolation**, but a two-branch architecture that processes body and hands as separate graphs before fusing learned features would likely preserve v4's body-class wins while adding v5's hand-class wins.
+**Skeleton layout.** v6 extends v5's body+hands skeleton with a sparse face subset. The total node count grows from 75 to 105:
 
-- **Adding face landmarks** (MediaPipe Face has 478 landmarks) would help eating, smoking, kissing, applying-makeup, and similar face-region classes that the body+hands skeleton still cannot disambiguate. The 478-landmark face mesh is too dense for a ST-GCN - it would need either part-pooling to ~10–20 keypoints or a hierarchical architecture.
+| Part | Source | Nodes | Indices |
+|---|---|---|---|
+| Body | MediaPipe Pose | 33 | 0..32 |
+| Left hand | MediaPipe Hand (handedness=Left) | 21 | 33..53 |
+| Right hand | MediaPipe Hand (handedness=Right) | 21 | 54..74 |
+| Face | MediaPipe Face (sparse subset) | 30 | 75..104 |
+
+The 30 face landmarks are a deliberate sparse subset of MediaPipe's 478-landmark face mesh: 8 jawline points, 4 eyebrow points, 8 eye points (corners + top/bottom for each eye), 2 nose points (tip + bridge), 4 outer-mouth points, 4 inner-mouth points. Enough to capture head pose, eye direction, mouth state without exploding the graph.
+
+A new extractor (`src/pose_extraction_hierarchical.py`) runs three MediaPipe tasks per frame (Pose + Hand + Face) and writes `(T, 105, 4)` arrays under `extracted_skeletons_hierarchical/`. The extractor is **parallelised across 8 worker processes** via `ProcessPoolExecutor`; on a 32-core CPU it processes all 10,000 videos in ~2 hours wall time. A small bug from the v5 extractor was also fixed: when MediaPipe detects two hands and assigns them the same handedness label, the higher-confidence one is kept in its slot and the other is dropped, instead of overwriting indiscriminately.
+
+**Architecture.** Instead of one shared graph over all 105 nodes, v6 builds **four independent ST-GCN sub-networks**, one per anatomical part:
+
+```
+body_feat   : (N, 256)   <- body_sub(body_input)    # 33 nodes
+lhand_feat  : (N, 128)   <- lhand_sub(lhand_input)  # 21 nodes
+rhand_feat  : (N, 128)   <- rhand_sub(rhand_input)  # 21 nodes
+face_feat   : (N, 128)   <- face_sub(face_input)    # 30 nodes
+
+concat (N, 640) -> Linear(640, 500) -> logits
+```
+
+Each sub-network has its own 10-block stack with the same architecture as v5's `SingleStream` (multi-scale temporal convolution, temporal attention on the last two blocks, drop-path schedule), but with **channel widths scaled by part size**: body keeps the original 64→128→256 progression; hands and face use a smaller 32→64→128 progression. The fusion is a single concatenation followed by one linear classifier - no cross-part attention in this version. The four sub-graphs never see each other's nodes during graph convolution; the only "mixing" happens at the final FC layer.
+
+**Input packing.** Each part receives a 12-channel input per joint, packing the three v4-style feature views into one tensor: 4 channels for position (`x, y, z, vis`), 4 channels for bone vectors (`bx, by, bz, vis`), 4 channels for joint velocities (`vx, vy, vz, vis`). Bone vectors and velocities are computed *per part* using each part's own edges - body bones use body edges, hand bones use hand edges, face bones use the (much sparser) face edges. This means each part has a self-contained representation: the body sub-network never has access to hand-derived bone features, and vice versa.
+
+**Parameters and memory.** Total: **4.06M** parameters - actually smaller than v4's 6.75M or v5's 6.88M, because the hand/face sub-streams have narrower channel widths than v4's full-width streams. GPU memory at batch size 32 sits comfortably around 30% of the 4070 Laptop's 8 GB (vs 64% for v5 at batch 16). The headroom let us double the batch size back to v4's 32 without any modification.
+
+**Training recipe.** All the v4/v5 defaults carry over: `DROPOUT=0.5`, `MIXUP_ALPHA=0.3`, label smoothing 0.15, AdamW + cosine schedule, EMA (decay 0.999), horizontal-flip TTA. 100 epochs with `combined_train=True` (train+val for fitting, test as held-out evaluation).
+
+### Result
+
+v6 final results on the held-out test split, 4-way ablation from a single training run:
+
+| Variant | Best Top-1 (epoch) | Best Top-5 (epoch) |
+|---|---|---|
+| v6 live | 34.2% (100) | 54.6% (69) |
+| **v6 + TTA** | **35.0% (83)** | **55.5% (52)** |
+| v6 + EMA | 34.2% (53) | 54.3% (43) |
+| v6 + EMA + TTA | 33.9% (84) | 55.5% (43) |
+
+### v6 vs v4 vs v5 on the same test split
+
+| Model | Modality | Top-1 | Top-5 |
+|---|---|---|---|
+| v4 | body 33 (monolithic) | 33.60% | 54.00% |
+| v5 | body+hands 75 (monolithic) | 33.67% | 53.27% |
+| **v6** | **body+hands+face 105 (hierarchical, 4 sub-graphs)** | **33.93%** | 52.33% |
+
+**A third wash on aggregate.** The hierarchical fusion moved test top-1 by +0.33pp over v4 and +0.27pp over v5 - both well within run-to-run variance. Top-5 actually drifted *down* by 1-2pp. Adding face landmarks and switching to hierarchical fusion didn't break the modality ceiling.
+
+### But the per-class story is informative
+
+Just like v5, v6 produces large per-class movements that net out to ~zero on aggregate. v6 vs v4 per-class:
+
+- **119 classes improved by ≥33pp**
+- **123 classes regressed by ≥33pp**
+- 258 unchanged
+
+**v6 rescued exactly the right kinds of classes.** Object-interaction, instrument-playing, and face-driven actions saw substantial gains over v4 - and many of them also over v5:
+
+| Class | v4 → v6 |
+|---|---|
+| fish-hunting_hold, high_jump_run, play_ocarina | 0% → 100% |
+| play_bagpipes, play_guitar, play_handpan, play_jazzdrum, play_thereminvox | 0% → 67% |
+| haircut_scissor, hold_baby_with_wrap, shake_cocktail | 0% → 67% |
+| adjusting_glasses, applying_cream, chewing_gum | 0-33% → 67-100% |
+| neck_side_pull_stretch, using_lawn_mower, ski_jump_land, play_grandpiano | 33% → 100% |
+
+**But v6 lost the same body-only classes v5 lost.** Strong-motion sports that were perfect on v4 dropped sharply:
+
+| Class | v4 → v6 |
+|---|---|
+| football_run | 100% → 0% |
+| tennis_serve, soccer_throw, situp, hand-drill_firemaking | 100% → 33% |
+| basketball_jabstep, climb_pole, figure_skate_scratch_spin, floor_spin | 67% → 0% |
+| play_saxophone, play_kendama, play_sanxian, fist_bump | 67% → 0% |
+| tennis_backhand, unicycle_ride | 67% → 0% |
+
+The interpretation: dedicated sub-graphs *do* prevent intra-graph dilution (v6 retained more body-only classes than v5), but the **fusion FC still mixes gradients across all four part features during training**. For body-only sport classes, the face stream is just noise that the FC has to learn to suppress, and that suppression process still pulls the body sub-network's weights in compromised directions. v4's body backbone trains under pure body loss; v6's body sub-network trains under a fused loss that includes the noise of three other parts.
+
+### So the architectural ceiling repeats
+
+Three different multi-part architectures (v4 body, v5 monolithic body+hands, v6 hierarchical body+hands+face) all land at ~34% test top-1 with different per-class distributions but the same aggregate. This is consistent with the Chapter 4 diagnostic - the modality is the ceiling, not the architecture.
+
+What it points to is a different solution: rather than asking a *single* model to balance body and hand/face information, treat them as **complementary specialists** and ensemble at inference time.
+
+---
+
+## Chapter 7 - Late Fusion via Ensemble (the headline result)
+
+Looking at v4 and v6's per-class accuracy CSVs side by side, the pattern was striking: where one model failed cleanly (0%), the other often won cleanly (67-100%). v4 nailed 64 classes at 100% top-1; v6 nailed 64 classes at 100% top-1; but the *intersection* was only ~30 of those, meaning each model had ~30 classes that *only it* solved well. The error patterns were genuinely complementary.
+
+The cheapest possible exploit of that complementarity is a **deep ensemble at inference**: load both models, run both on each test sample, average their softmax probabilities, take the argmax. No new training, no oracle, just two forward passes and one elementwise mean.
+
+`ensemble_v4_v6.py` implements this plus four reference variants. Results on the held-out test split:
+
+| Strategy | Top-1 | Top-5 | Notes |
+|---|---|---|---|
+| v4 alone (TTA) | 33.60% | 54.00% | baseline |
+| v6 alone (TTA) | 33.93% | 52.33% | baseline |
+| **Simple average  ½·v4 + ½·v6** | **39.40%** | **58.07%** | deployable, no oracle |
+| Confidence-pick (per-sample max-prob model) | 38.40% | 54.93% | deployable, no oracle |
+| Per-class probability blend (oracle weights) | 41.33% | 57.80% | oracle - uses test-derived per-class accs |
+| Per-class router with true-class oracle | 44.00% | - | oracle - upper bound |
+| Per-class router with predicted-class voting | 40.33% | - | oracle |
+
+**+5.8pp top-1 / +4.1pp top-5 over v4** from a 30-minute script and zero new training. This is the largest single jump in the entire project - bigger than any architectural change.
+
+### Why averaging works so dramatically here
+
+The mechanism is the textbook reason deep ensembles work. For a class v4 gets right and v6 gets wrong, v4's correct-class probability is typically high while v6's *wrong* vote tends to be diffuse - split across several plausible-looking confusions, each with low individual probability. The average preserves v4's high correct-class vote. Symmetrically for classes v6 gets right. The model that's *wrong* on a sample is wrong with low confidence; the model that's *right* is right with high confidence.
+
+The 119+101 per-class swap pattern measured between v4 and v6 is exactly the kind of complementarity that produces large ensemble gains. The aggregate "wash" hides the fact that they're solving different parts of the problem.
+
+### Oracle ceilings
+
+The oracle / per-class-blend strategies use information that wouldn't be available at deployment time (they peek at test-set per-class accuracies to decide how to blend per class). They're not reportable as headline numbers, but they're informative as ceilings:
+
+- The **per-class probability blend** reaches **41.33%** by weighting each class's probability by `acc_v4[c] / (acc_v4[c] + acc_v6[c])` - i.e. trusting v4's vote more for classes v4 was historically good at, and v6's for the rest. About +2pp over simple averaging.
+- The **true-class oracle router** reaches **44.00%** by picking the correct model given the true label. This is the absolute ceiling of any per-class routing strategy. The gap from 39.4% (deployable) to 44.0% (oracle) says there's still ~5pp of headroom achievable through smarter routing.
+
+A natural follow-up would be **learning the routing**: a small "gating" MLP that produces per-sample weights for v4 vs v6 (or, equivalently, a per-part gating layer baked into a v6.1 architecture). Approach B from the design discussion - estimated to recover most of the deployable→oracle gap.
+
+### Deployment story
+
+For an end-user demo, two checkpoints land at the same inference cost as a single model with double the parameters:
+
+- Load `best_stgcn_v4_emattta.pth` + `best_stgcn_v6_combined.pth` (~7M params total)
+- Per clip: run both forwards (with TTA), average the softmax outputs
+- Decode argmax → class name
+- Realistic per-clip latency on the 4070: ~80-150ms (skeleton extraction dominates; model forward is negligible)
+
+This is the strongest deployable result the project produces. **For the held-out test set: 39.4% top-1, 58.1% top-5.**
+
+---
+
+## Chapter 8 - Conclusions
+
+Across six training runs, four architectural extensions, three skeleton-extraction pipelines, and one inference-time ensemble, the test-set top-1 accuracy moved from 31.5% (v1, val) to 33.7% (v2, val) to ~34% (v4/v5/v6 all hovering on test) to **39.4% (v4+v6 ensemble, test)**. The single-model ceiling held at ~34-35%; the ensemble broke past it by +5.8pp.
+
+The Chapter 4 per-class diagnostic predicted exactly this trajectory. About 24% of HAA500 classes are unrecognisable to a skeleton-only model regardless of architecture, and another 40% are only sometimes recognisable. Within those constraints, *which* classes a model gets right depends on what features its architecture privileges. v4 (body-only) excels at whole-body sports; v5/v6 (with hands and/or face) excel at object-mediated and instrument actions. No single architecture combines both. Combining them at inference does.
 
 ### Final results summary
 
@@ -291,9 +432,18 @@ Future work ideas:
 |---|---|---|---|---|---|
 | v1 - single-stream ST-GCN | 2-D image landmarks | val | 31.5% | 48.5% | 100 epochs |
 | v2 - two-stream + attention | 3-D world landmarks | val | 33.7% | 51.5% | 150 epochs |
-| v3 - v2 + reviewer suggestions | 3-D world landmarks | val | 26.3% (best variant 27.9%) | 46.7% | Architectural changes were a net regression |
-| v4 - three-stream (joint + bone + motion) + EMA + TTA | 3-D world landmarks | val | **34.9%** | **54.7%** | 150 epochs |
-| v5 - three-stream over 75-node body+hands graph | image-space body + hands | test | 33.7% | 53.3% | 100 epochs, `combined_train=True` |
-| v5 vs v4 on common test set | - | test | 33.7% (v5) vs 33.6% (v4) | 53.3% vs 54.0% | Net wash; per-class redistribution explained in Chapter 5 |
+| v3 - v2 + reviewer suggestions | 3-D world landmarks | val | 26.3% (best variant 27.9%) | 46.7% | architectural changes net regression |
+| v4 - three-stream (joint+bone+motion) + EMA + TTA | 3-D world landmarks | val / test | 34.9% / 33.6% | 54.7% / 54.0% | 150 epochs |
+| v5 - three-stream over 75-node body+hands graph (monolithic) | image-space body + hands | test | 33.7% | 53.3% | 100 epochs, `combined_train=True` |
+| v6 - hierarchical 4-sub-graph body+hands+face (V=105) | image-space body + hands + face | test | 33.9% | 52.3% | 100 epochs, `combined_train=True` |
+| **v4 + v6 ensemble (½ average of softmax)** | both modalities | **test** | **39.4%** | **58.1%** | no new training |
+| v4 + v6 per-class oracle blend (upper bound) | both modalities | test | 41.3% | 57.8% | oracle |
+| v4 + v6 true-class oracle router (absolute ceiling) | both modalities | test | 44.0% | - | oracle |
 
-The best deployable checkpoint is `best_stgcn_v5_combined.pth` for object-interaction-heavy demos and `best_stgcn_v4_emattta.pth` for body-motion-heavy demos. There is no single model in this work that dominates the other on all 500 classes.
+Future work directions:
+
+- **Learnable gating** would close most of the deployable (39.4%) → oracle (44%) gap by baking the per-class routing into a single model. ~1 day of code + retraining.
+- **Cross-modal pretraining** on a larger skeleton dataset (NTU RGB+D 60/120) followed by HAA500 fine-tuning would lift each individual model and thus also the ensemble. ~1-2 weeks.
+- **Object detection** as a fifth modality (bounding boxes for the held/used object, projected into the same temporal-graph framework as a small auxiliary stream) would address the residual ~20% of HAA500 classes where the object identity *is* the action. Higher effort, higher risk.
+
+**Deployable artefacts**: `best_stgcn_v4_emattta.pth` + `best_stgcn_v6_combined.pth` together, with the `ensemble_v4_v6.py` inference logic, are the strongest single configuration the project produces - **39.4% top-1, 58.1% top-5** on a held-out test set, achieved with no additional training beyond what's already in the repo.

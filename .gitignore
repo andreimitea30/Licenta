@@ -7,7 +7,9 @@ haa500_v1_1/
 extracted_skeletons/
 extracted_skeletons_world/
 extracted_skeletons_holistic/
+extracted_skeletons_hierarchical/
 splits/
+visualization/
 
 *.pth
 *.task
